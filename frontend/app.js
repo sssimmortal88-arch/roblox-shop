@@ -2,7 +2,7 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-const API_BASE = "https://your-backend-domain.com/api"; // заменить на реальный домен
+const API_BASE = "https://roblox-shop-4e0j.onrender.com/api";
 
 let products = [];
 let cart = {}; // { productId: qty }
