@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MM2 Shop</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>MM2 Магазин</h1>
+    <div class="cart-badge" id="cartBadge">🛒 0</div>
+  </header>
+
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="Поиск годлы...">
+    <select id="categoryFilter">
+      <option value="all">Все категории</option>
+      <option value="knife">Ножи</option>
+      <option value="gun">Оружие</option>
+      <option value="pet">Питомцы</option>
+    </select>
+  </div>
+
+  <main id="catalog" class="catalog"></main>
+
+  <!-- Экран корзины -->
+  <div id="cartScreen" class="screen hidden">
+    <h2>Корзина</h2>
+    <div id="cartItems"></div>
+    <div class="total">Итого: <span id="cartTotal">0</span> ₸</div>
+
+    <label for="nickname">Ваш ник в Roblox</label>
+    <input type="text" id="nickname" placeholder="Например: xX_Player_Xx">
+
+    <div class="payment-block">
+      <p>Переведите сумму на Kaspi по номеру/QR:</p>
+      <img src="kaspi-qr.png" alt="Kaspi QR" class="qr-img">
+      <p class="requisites">+7 7XX XXX XX XX (Kaspi Gold, Имя Фамилия)</p>
+    </div>
+
+    <button id="submitOrderBtn" class="primary-btn">Я оплатил, отправить заказ</button>
+    <button id="backToCatalogBtn" class="secondary-btn">Назад в каталог</button>
+  </div>
+
+  <!-- Экран статуса заказа -->
+  <div id="statusScreen" class="screen hidden">
+    <h2>Заказ отправлен ✅</h2>
+    <p>Мы проверим оплату и пришлём тебе ссылку/приглашение в приватный сервер, где бот выдаст предметы.</p>
+    <p id="orderIdText"></p>
+    <button id="checkStatusBtn" class="primary-btn">Проверить статус</button>
+    <div id="deliveryLink"></div>
+  </div>
+
+  <footer class="bottombar">
+    <button id="openCartBtn" class="primary-btn">Оформить заказ →</button>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
