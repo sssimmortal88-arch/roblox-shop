@@ -69,3 +69,36 @@ label { display: block; margin: 12px 0 6px; font-size: 14px; }
 .payment-block { margin: 16px 0; text-align: center; }
 .qr-img { width: 200px; height: 200px; margin: 10px auto; border-radius: 12px; }
 .requisites { color: #aaa; font-size: 13px; }
+/* Анимация пульсации кнопки при клике */
+.buy-btn.added {
+    animation: pulse 0.4s ease-in-out;
+    background: #28a745 !important; /* На короткое время кнопка станет зелёной */
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Всплывающее уведомление (Toast) */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: rgba(40, 167, 69, 0.95);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.toast-notification.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
