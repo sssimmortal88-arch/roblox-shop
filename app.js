@@ -41,9 +41,19 @@ function applyFilters() {
 
 // ---------- Корзина ----------
 function addToCart(id) {
-  cart[id] = (cart[id] || 0) + 1;
-  updateCartBadge();
-  tg.HapticFeedback.impactOccurred("light");
+    cart[id] = (cart[id] || 0) + 1;
+    updateCartBadge();
+    tg.HapticFeedback.impactOccurred("light");
+
+    // Всплывающее уведомление
+    showToast("🛒 Товар добавлен в корзину!");
+
+    // Анимация нажатия на кнопку
+    if (window.event && window.event.target) {
+        const btn = window.event.target;
+        btn.classList.add('added');
+        setTimeout(() => btn.classList.remove('added'), 400);
+    }
 }
 
 function updateCartBadge() {
