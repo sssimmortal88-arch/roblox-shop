@@ -11,10 +11,50 @@ body {
     min-height: 100vh;
 }
 
-/* Настройки для карточек товаров (они будут чуть светлее фона) */
+/* НАСТРОЙКА ВЕРХНЕЙ ПАНЕЛИ (ШАПКИ) */
+header, .header {
+    background: #12131c;               /* Графитовый цвет, выделяется на черном */
+    border: 1px solid #2b2d42;         /* Тонкая рамка */
+    border-radius: 20px;               /* Сильное скругление углов */
+    padding: 12px 20px;                /* Внутренние отступы */
+    margin-bottom: 20px;               /* Отступ снизу до поиска/товаров */
+    display: flex;
+    justify-content: space-between;    /* Разносит название и корзину по бокам */
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); /* Объемная тень */
+}
+
+/* Заголовок шапки */
+header h1, .header h1, .header-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+/* Кнопка корзины в шапке */
+#openCartBtn, .cart-btn {
+    background: #2b2d42;
+    color: #ffffff;
+    border: 1px solid #3a3d5c;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: auto; /* Чтобы кнопка не растягивалась во всю ширину */
+    transition: background 0.2s;
+}
+
+#openCartBtn:active {
+    background: #3a3d5c;
+}
+
+/* Настройки для карточек товаров */
 .item-card {
     background-color: #12131c; /* Темно-серый цвет для карточки */
-    border-radius: 12px;       /* Скругленные углы */
+    border-radius: 16px;       /* Скругленные углы */
     padding: 15px;
     margin-bottom: 15px;
     border: 1px solid #2b2d42; /* Тонкая рамка */
@@ -52,7 +92,7 @@ button {
     transition: all 0.2s ease;
 }
 
-/* Анимация пульсации кнопки при клике (из предыдущего шага) */
+/* Анимация пульсации кнопки при клике */
 button.added {
     animation: pulse 0.4s ease-in-out;
     background: #28a745 !important;
@@ -86,7 +126,7 @@ button.added {
     opacity: 1;
 }
 
-/* Скрытие элементов (для переключения экранов) */
+/* Скрытие элементов для переключения экранов */
 .hidden {
     display: none !important;
 }
