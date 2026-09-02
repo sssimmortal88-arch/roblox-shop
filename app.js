@@ -54,15 +54,58 @@ function applyFilters() {
 }
 
 // ---------- Работа с товарами ----------
+// Функция добавления товара с анимацией полёта в корзину
 function addToCart(id) {
-  cart[id] = 1;
-  updateCartBadge();
-  applyFilters(); // Перерисовываем каталог, чтобы синяя кнопка сменилась на фиолетовую
-  
-  if (window.tg && tg.HapticFeedback) {
-    tg.HapticFeedback.impactOccurred("light");
-  }
-  showToast("🛒 Товар добавлен в корзину!");
+    cart[id] = 1;
+    updateCartBadge();
+    
+    // Запуск анимации полёта картинки в корзину
+    if (window.event && window.event.target) {
+        const btn = window.event.target;
+        const card = btn.closest('.item-card');
+        const img = card ? card.querySelector('img') : null;
+        const cartBadge = document.getElementById('openCartBtn');
+
+        if (img && cartBadge) {
+            // Клонируем картинку товара
+            const flyingImg = img.cloneNode(true);
+            const imgRect = img.getBoundingClientRect();
+            const cartRect = cartBadge.getBoundingClientRect();
+
+            // Задаём начальные координаты клона
+            flyingImg.classList.add('flying-item');
+            flyingImg.style.top = `${imgRect.top}px`;
+            flyingImg.style.left = `${imgRect.left}px`;
+            flyingImg.style.width = `${imgRect.width}px`;
+            flyingImg.style.height = `${imgRect.height}px`;
+
+            document.body.appendChild(flyingImg);
+
+            // Запускаем перемещение к значку корзины (в правый верхний угол)
+            requestAnimationFrame(() => {
+                flyingImg.style.top = `${cartRect.top + 5}px`;
+                flyingImg.style.left = `${cartRect.left + 10}px`;
+                flyingImg.style.width = '20px';
+                flyingImg.style.height = '20px';
+                flyingImg.style.opacity = '0.2';
+                flyingImg.style.transform = 'scale(0.3) rotate(360deg)';
+            });
+
+            // Удаляем клон после завершения анимации и «встряхиваем» корзину
+            setTimeout(() => {
+                flyingImg.remove();
+                cartBadge.classList.add('cart-bump');
+                setTimeout(() => cartBadge.classList.remove('cart-bump'), 300);
+            }, 600);
+        }
+    }
+
+    applyFilters(); // Обновляем кнопку на фиолетовый переключатель
+
+    if (window.tg && tg.HapticFeedback) {
+        tg.HapticFeedback.impactOccurred("light");
+    }
+    showToast("🛒 Товар добавлен в корзину!");
 }
 
 function changeQty(id, delta) {
