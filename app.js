@@ -7,6 +7,23 @@ const API_BASE = "https://roblox-shop-4e0j.onrender.com/api";
 let products = [];
 let cart = {}; // { productId: qty }
 
+// ---------- Работа с локальной историей заказов ----------
+function getSavedOrders() {
+  try {
+    return JSON.parse(localStorage.getItem("user_orders") || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveOrderToHistory(orderId) {
+  const orders = getSavedOrders();
+  if (!orders.includes(orderId)) {
+    orders.unshift(orderId); // Новые заказы добавляем в начало
+    localStorage.setItem("user_orders", JSON.stringify(orders));
+  }
+}
+
 // ---------- Инициализация ----------
 async function loadProducts() {
   try {
@@ -20,13 +37,11 @@ async function loadProducts() {
 
 // ---------- Слушатели фильтров и шторки ----------
 document.addEventListener("DOMContentLoaded", () => {
-  // Поиск по названию
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
     searchInput.addEventListener("input", applyFilters);
   }
 
-  // Кнопка открытия/закрытия шторки сортировки
   const toggleBtn = document.getElementById("toggleFilterBtn");
   const dropdown = document.getElementById("filterDropdown");
   if (toggleBtn && dropdown) {
@@ -35,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Слушатели радио-кнопок сортировки
   document.querySelectorAll('input[name="sortOption"]').forEach(radio => {
     radio.addEventListener("change", () => {
       applyFilters();
@@ -48,16 +62,14 @@ function applyFilters() {
   const searchVal = document.getElementById("searchInput")?.value.toLowerCase() || "";
   const sortVal = document.querySelector('input[name="sortOption"]:checked')?.value || "default";
 
-  // 1. Поиск по названию
   let filtered = products.filter(p =>
     p.name.toLowerCase().includes(searchVal)
   );
 
-  // 2. Сортировка по цене
   if (sortVal === "cheap") {
-    filtered.sort((a, b) => a.price - b.price); // Самые дешевые
+    filtered.sort((a, b) => a.price - b.price);
   } else if (sortVal === "expensive") {
-    filtered.sort((a, b) => b.price - a.price); // Самые дорогие
+    filtered.sort((a, b) => b.price - a.price);
   }
 
   renderCatalog(filtered);
@@ -71,7 +83,6 @@ function renderCatalog(list) {
   catalog.innerHTML = list.map(p => {
     const qty = cart[p.id] || 0;
     
-    // Если товар уже в корзине, показываем фиолетовый переключатель "- 1 +"
     const buttonHtml = qty > 0 
       ? `<div class="qty-control-pill">
            <button class="pill-btn" onclick="changeQty(${p.id}, -1)">—</button>
@@ -91,59 +102,53 @@ function renderCatalog(list) {
   }).join("");
 }
 
-// ---------- Работа с товарами ----------
-// Функция добавления товара с анимацией полёта в корзину
+// ---------- Работа с корзиной ----------
 function addToCart(id) {
-    cart[id] = 1;
-    updateCartBadge();
-    
-    // Запуск анимации полёта картинки в корзину
-    if (window.event && window.event.target) {
-        const btn = window.event.target;
-        const card = btn.closest('.item-card');
-        const img = card ? card.querySelector('img') : null;
-        const cartBadge = document.getElementById('openCartBtn');
+  cart[id] = 1;
+  updateCartBadge();
+  
+  if (window.event && window.event.target) {
+    const btn = window.event.target;
+    const card = btn.closest('.item-card');
+    const img = card ? card.querySelector('img') : null;
+    const cartBadge = document.getElementById('openCartBtn');
 
-        if (img && cartBadge) {
-            // Клонируем картинку товара
-            const flyingImg = img.cloneNode(true);
-            const imgRect = img.getBoundingClientRect();
-            const cartRect = cartBadge.getBoundingClientRect();
+    if (img && cartBadge) {
+      const flyingImg = img.cloneNode(true);
+      const imgRect = img.getBoundingClientRect();
+      const cartRect = cartBadge.getBoundingClientRect();
 
-            // Задаём начальные координаты клона
-            flyingImg.classList.add('flying-item');
-            flyingImg.style.top = `${imgRect.top}px`;
-            flyingImg.style.left = `${imgRect.left}px`;
-            flyingImg.style.width = `${imgRect.width}px`;
-            flyingImg.style.height = `${imgRect.height}px`;
+      flyingImg.classList.add('flying-item');
+      flyingImg.style.top = `${imgRect.top}px`;
+      flyingImg.style.left = `${imgRect.left}px`;
+      flyingImg.style.width = `${imgRect.width}px`;
+      flyingImg.style.height = `${imgRect.height}px`;
 
-            document.body.appendChild(flyingImg);
+      document.body.appendChild(flyingImg);
 
-            // Запускаем перемещение к значку корзины (в правый верхний угол)
-            requestAnimationFrame(() => {
-                flyingImg.style.top = `${cartRect.top + 5}px`;
-                flyingImg.style.left = `${cartRect.left + 10}px`;
-                flyingImg.style.width = '20px';
-                flyingImg.style.height = '20px';
-                flyingImg.style.opacity = '0.2';
-                flyingImg.style.transform = 'scale(0.3) rotate(360deg)';
-            });
+      requestAnimationFrame(() => {
+        flyingImg.style.top = `${cartRect.top + 5}px`;
+        flyingImg.style.left = `${cartRect.left + 10}px`;
+        flyingImg.style.width = '20px';
+        flyingImg.style.height = '20px';
+        flyingImg.style.opacity = '0.2';
+        flyingImg.style.transform = 'scale(0.3) rotate(360deg)';
+      });
 
-            // Удаляем клон после завершения анимации и «встряхиваем» корзину
-            setTimeout(() => {
-                flyingImg.remove();
-                cartBadge.classList.add('cart-bump');
-                setTimeout(() => cartBadge.classList.remove('cart-bump'), 300);
-            }, 600);
-        }
+      setTimeout(() => {
+        flyingImg.remove();
+        cartBadge.classList.add('cart-bump');
+        setTimeout(() => cartBadge.classList.remove('cart-bump'), 300);
+      }, 600);
     }
+  }
 
-    applyFilters(); // Обновляем кнопку на фиолетовый переключатель
+  applyFilters();
 
-    if (window.tg && tg.HapticFeedback) {
-        tg.HapticFeedback.impactOccurred("light");
-    }
-    showToast("🛒 Товар добавлен в корзину!");
+  if (window.tg && tg.HapticFeedback) {
+    tg.HapticFeedback.impactOccurred("light");
+  }
+  showToast("🛒 Товар добавлен в корзину!");
 }
 
 function changeQty(id, delta) {
@@ -155,9 +160,8 @@ function changeQty(id, delta) {
   }
 
   updateCartBadge();
-  applyFilters(); // Обновляем состояние кнопок в каталоге
+  applyFilters();
   
-  // Если открыт экран корзины, обновляем и его
   const cartScreen = document.getElementById("cartScreen");
   if (cartScreen && !cartScreen.classList.contains("hidden")) {
     renderCart();
@@ -168,7 +172,6 @@ function changeQty(id, delta) {
   }
 }
 
-// Полное удаление товара по нажатию на крестик в корзине
 function removeItemCompletely(id) {
   delete cart[id];
   updateCartBadge();
@@ -187,7 +190,7 @@ function updateCartBadge() {
   }
 }
 
-// ---------- Отрисовка стильной корзины ----------
+// ---------- Отрисовка корзины ----------
 function renderCart() {
   const container = document.getElementById("cartItems");
   let total = 0;
@@ -238,20 +241,38 @@ function renderCart() {
 }
 
 // ---------- Переключение экранов ----------
-document.getElementById("openCartBtn").onclick = () => {
+function hideAllScreens() {
   document.getElementById("catalog").classList.add("hidden");
   document.querySelector(".filters").classList.add("hidden");
+  document.getElementById("cartScreen").classList.add("hidden");
+  document.getElementById("statusScreen").classList.add("hidden");
+  document.getElementById("historyScreen").classList.add("hidden");
+  
   const dropdown = document.getElementById("filterDropdown");
-  if (dropdown) dropdown.classList.remove("open"); // Скрываем шторку при переходе в корзину
+  if (dropdown) dropdown.classList.remove("open");
+}
+
+function showCatalog() {
+  hideAllScreens();
+  document.getElementById("catalog").classList.remove("hidden");
+  document.querySelector(".filters").classList.remove("hidden");
+}
+
+document.getElementById("openCartBtn").onclick = () => {
+  hideAllScreens();
   document.getElementById("cartScreen").classList.remove("hidden");
   renderCart();
 };
 
-document.getElementById("backToCatalogBtn").onclick = () => {
-  document.getElementById("cartScreen").classList.add("hidden");
-  document.getElementById("catalog").classList.remove("hidden");
-  document.querySelector(".filters").classList.remove("hidden");
+document.getElementById("openHistoryBtn").onclick = () => {
+  hideAllScreens();
+  document.getElementById("historyScreen").classList.remove("hidden");
+  renderHistory();
 };
+
+document.getElementById("backToCatalogBtn").onclick = showCatalog;
+document.getElementById("backFromHistoryBtn").onclick = showCatalog;
+document.getElementById("statusToCatalogBtn").onclick = showCatalog;
 
 // ---------- Оформление заказа ----------
 document.getElementById("submitOrderBtn").onclick = async () => {
@@ -284,9 +305,14 @@ document.getElementById("submitOrderBtn").onclick = async () => {
     if (data.order_id) {
       cart = {};
       updateCartBadge();
-      document.getElementById("cartScreen").classList.add("hidden");
+      
+      // Сохраняем номер заказа в истории на устройстве
+      saveOrderToHistory(data.order_id);
+
+      hideAllScreens();
       document.getElementById("statusScreen").classList.remove("hidden");
       document.getElementById("orderIdText").textContent = `Заказ #${data.order_id}`;
+      document.getElementById("deliveryLink").innerHTML = "";
       window.currentOrderId = data.order_id;
     } else {
       tg.showAlert("Ошибка при создании заказа, попробуйте ещё раз");
@@ -296,28 +322,63 @@ document.getElementById("submitOrderBtn").onclick = async () => {
   }
 };
 
-// ---------- Проверка статуса ----------
+// ---------- Проверка статуса единичного заказа ----------
 document.getElementById("checkStatusBtn").onclick = async () => {
+  if (!window.currentOrderId) return;
+  checkSingleOrderStatus(window.currentOrderId, document.getElementById("deliveryLink"));
+};
+
+async function checkSingleOrderStatus(orderId, targetContainer) {
   try {
-    const res = await fetch(`${API_BASE}/order/${window.currentOrderId}`);
+    const res = await fetch(`${API_BASE}/order/${orderId}`);
     const data = await res.json();
+    
     if (data.status === "approved") {
-      document.getElementById("deliveryLink").innerHTML =
-        `<p>Оплата подтверждена! Ссылка на приватный сервер:</p>
-         <a href="${data.delivery_link}" target="_blank">${data.delivery_link}</a>`;
+      targetContainer.innerHTML =
+        `<p style="color:#22c55e; font-weight:bold; margin-bottom:5px;">Оплата подтверждена! ✅</p>
+         <a href="${data.delivery_link}" target="_blank" style="color:#8b5cf6; word-break:break-all;">${data.delivery_link}</a>`;
     } else if (data.status === "rejected") {
-      document.getElementById("deliveryLink").innerHTML = `<p>Оплата не найдена. Напишите в поддержку.</p>`;
+      targetContainer.innerHTML = `<p style="color:#ef4444; font-weight:bold;">Оплата не найдена или отклонена. Напишите в поддержку.</p>`;
     } else {
-      tg.showAlert("Оплата ещё проверяется, попробуйте позже");
+      targetContainer.innerHTML = `<p style="color:#eab308; font-weight:bold;">Оплата ещё проверяется ⏳</p>`;
     }
   } catch (err) {
-    tg.showAlert("Не удалось проверить статус");
+    targetContainer.innerHTML = `<p style="color:#ef4444;">Ошибка получения статуса</p>`;
+  }
+}
+
+// ---------- Отрисовка Истории Заказов ----------
+function renderHistory() {
+  const container = document.getElementById("historyList");
+  const orders = getSavedOrders();
+
+  if (orders.length === 0) {
+    container.innerHTML = "<p style='color:#a0a0ab; text-align:center; padding: 20px 0;'>У вас пока нет заказов</p>";
+    return;
+  }
+
+  container.innerHTML = orders.map(id => `
+    <div style="background:#181922; border:1px solid #282936; border-radius:14px; padding:15px; margin-bottom:12px;">
+      <div style="display:flex; justify-between:space-between; align-items:center; margin-bottom:10px;">
+        <strong style="font-size:16px;">Заказ #${id}</strong>
+        <button onclick="checkHistoryItemStatus(${id})" class="primary-btn" style="padding:6px 12px; font-size:12px;">Проверить</button>
+      </div>
+      <div id="history-status-${id}" style="font-size:13px; color:#a0a0ab;">Нажмите «Проверить» для обновления статуса</div>
+    </div>
+  `).join("");
+}
+
+window.checkHistoryItemStatus = function(orderId) {
+  const target = document.getElementById(`history-status-${orderId}`);
+  if (target) {
+    target.innerHTML = "Загрузка...";
+    checkSingleOrderStatus(orderId, target);
   }
 };
 
 loadProducts();
 
-// Функция вызова всплывающего уведомления
+// Всплывающее уведомление
 function showToast(message) {
   let toast = document.getElementById('toast');
   if (!toast) {
