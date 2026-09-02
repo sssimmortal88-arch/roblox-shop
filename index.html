@@ -12,7 +12,6 @@
     <h1>MM2 EZZ SHOP</h1>
     <div style="display: flex; gap: 8px; align-items: center;">
       <button type="button" class="cart-badge" id="openHistoryBtn">📜 Заказы</button>
-      <button type="button" class="cart-badge" id="openCartBtn">🛒 <span id="cartBadge">0</span></button>
     </div>
   </header>
 
@@ -73,6 +72,13 @@
   </div>
 
   <main id="catalog" class="catalog"></main>
+
+  <!-- Фиксированная нижняя панель корзины -->
+  <div id="bottomCartBar" class="bottom-cart-bar hidden">
+    <button id="openCartBtn" class="floating-cart-btn">
+      КОРЗИНА (<span id="cartBadge">0</span>)
+    </button>
+  </div>
 
   <!-- Экран корзины -->
   <div id="cartScreen" class="screen hidden">
