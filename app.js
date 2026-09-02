@@ -61,16 +61,58 @@ function updateCartBadge() {
   document.getElementById("cartBadge").textContent = `🛒 ${count}`;
 }
 
+// Отрисовка интерактивной корзины с кнопками "+" и "-"
 function renderCart() {
   const container = document.getElementById("cartItems");
   let total = 0;
-  container.innerHTML = Object.entries(cart).map(([id, qty]) => {
+
+  const cartEntries = Object.entries(cart).filter(([_, qty]) => qty > 0);
+
+  if (cartEntries.length === 0) {
+    container.innerHTML = "<p class='empty-cart-text'>Корзина пуста 🛒</p>";
+    document.getElementById("cartTotal").textContent = "0";
+    return;
+  }
+
+  container.innerHTML = cartEntries.map(([id, qty]) => {
     const p = products.find(p => p.id == id);
+    if (!p) return "";
     const sum = p.price * qty;
     total += sum;
-    return `<div class="cart-line"><span>${p.name} x${qty}</span><span>${sum} ₸</span></div>`;
-  }).join("") || "<p>Корзина пуста</p>";
+
+    return `
+      <div class="cart-line">
+        <div class="cart-item-info">
+          <span class="cart-item-name">${p.name}</span>
+          <span class="cart-item-price">${sum} ₸</span>
+        </div>
+        <div class="cart-controls">
+          <button type="button" class="qty-btn" onclick="changeQty(${p.id}, -1)">-</button>
+          <span class="qty-count">${qty}</span>
+          <button type="button" class="qty-btn" onclick="changeQty(${p.id}, 1)">+</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
   document.getElementById("cartTotal").textContent = total;
+}
+
+// Функция управления количеством товара (+1 / -1)
+function changeQty(id, delta) {
+  if (!cart[id]) return;
+  cart[id] += delta;
+  
+  if (cart[id] <= 0) {
+    delete cart[id];
+  }
+
+  updateCartBadge();
+  renderCart();
+  
+  if (window.tg && tg.HapticFeedback) {
+    tg.HapticFeedback.impactOccurred("light");
+  }
 }
 
 document.getElementById("openCartBtn").onclick = () => {
@@ -141,6 +183,7 @@ document.getElementById("checkStatusBtn").onclick = async () => {
 };
 
 loadProducts();
+
 // Функция вызова красивого уведомления
 function showToast(message) {
     let toast = document.getElementById('toast');
