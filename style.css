@@ -130,3 +130,69 @@ button.added {
 .hidden {
     display: none !important;
 }
+/* СТИЛИ ДЛЯ СПИСКА В КОРЗИНЕ */
+.cart-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #12131c;
+    border: 1px solid #2b2d42;
+    border-radius: 12px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+}
+
+.cart-item-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.cart-item-name {
+    font-weight: bold;
+    font-size: 15px;
+    color: #ffffff;
+}
+
+.cart-item-price {
+    font-size: 13px;
+    color: #ffd700;
+    margin-top: 2px;
+}
+
+.cart-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qty-btn {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    font-size: 16px !important;
+    line-height: 32px !important;
+    border-radius: 8px !important;
+    background: #2b2d42 !important;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-btn:active {
+    background: #3a3d5c !important;
+}
+
+.qty-count {
+    font-weight: bold;
+    font-size: 15px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.empty-cart-text {
+    text-align: center;
+    color: #8e8e93;
+    padding: 20px 0;
+}
