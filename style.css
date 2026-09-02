@@ -1,7 +1,7 @@
 /* Основные настройки всего приложения */
 body {
-    background-color: #000000; /* Идеально черный фон */
-    color: #ffffff;            /* Белый цвет текста для контраста */
+    background-color: #000000;
+    color: #ffffff;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 15px;
@@ -12,21 +12,20 @@ body {
 }
 
 /* НАСТРОЙКА ВЕРХНЕЙ ПАНЕЛИ (ШАПКИ) */
-header, .header {
-    background: #12131c;               /* Графитовый цвет, выделяется на черном */
-    border: 1px solid #2b2d42;         /* Тонкая рамка */
-    border-radius: 20px;               /* Сильное скругление углов */
-    padding: 12px 20px;                /* Внутренние отступы */
-    margin-bottom: 20px;               /* Отступ снизу до поиска/товаров */
+header, .header, .topbar {
+    background: #12131c;
+    border: 1px solid #2b2d42;
+    border-radius: 20px;
+    padding: 12px 20px;
+    margin-bottom: 15px;
     display: flex;
-    justify-content: space-between;    /* Разносит название и корзину по бокам */
+    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6); /* Объемная тень */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
-/* Заголовок шапки */
-header h1, .header h1, .header-title {
-    font-size: 20px;
+header h1, .header h1, .topbar h1 {
+    font-size: 18px;
     font-weight: 800;
     color: #ffffff;
     margin: 0;
@@ -34,7 +33,7 @@ header h1, .header h1, .header-title {
 }
 
 /* Кнопка корзины в шапке */
-#openCartBtn, .cart-btn {
+#openCartBtn, .cart-badge {
     background: #2b2d42;
     color: #ffffff;
     border: 1px solid #3a3d5c;
@@ -43,48 +42,152 @@ header h1, .header h1, .header-title {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    width: auto; /* Чтобы кнопка не растягивалась во всю ширину */
-    transition: background 0.2s;
+    width: auto;
+    transition: transform 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 #openCartBtn:active {
     background: #3a3d5c;
 }
 
-/* Настройки для карточек товаров */
+/* БЛОК ПОИСКА И ФИЛЬТРА */
+.filters {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    font-size: 14px;
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.search-wrapper input {
+    width: 100%;
+    height: 48px;
+    background: #181922 !important;
+    border: 1px solid #282936 !important;
+    border-radius: 25px !important;
+    padding: 0 16px 0 42px !important;
+    color: #ffffff !important;
+    font-size: 15px;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    box-sizing: border-box;
+}
+
+.search-wrapper input::placeholder {
+    color: #8e8e93;
+}
+
+.search-wrapper input:focus {
+    border-color: #8b5cf6 !important;
+}
+
+/* Кнопка фильтра категорий */
+.select-wrapper {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.filter-btn-icon {
+    width: 48px !important;
+    height: 48px !important;
+    background: #181922 !important;
+    border: 1px solid #282936 !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff !important;
+    padding: 0 !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.select-wrapper select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0 !important;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* СЕТКА КАТАЛОГА (2 КОЛОНКИ) */
+.catalog {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    padding-bottom: 20px;
+}
+
 .item-card {
-    background-color: #12131c; /* Темно-серый цвет для карточки */
-    border-radius: 16px;       /* Скругленные углы */
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 1px solid #2b2d42; /* Тонкая рамка */
+    background-color: #12131c;
+    border-radius: 16px;
+    padding: 10px !important;
+    border: 1px solid #2b2d42;
     text-align: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3); /* Легкая тень */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0 !important;
 }
 
-/* Настройки для картинок внутри карточек */
 .item-card img {
-    max-width: 100px;
-    max-height: 100px;
+    max-width: 70px !important;
+    max-height: 70px !important;
     object-fit: contain;
-    margin-bottom: 10px;
+    margin: 0 auto 8px auto !important;
 }
 
-/* Настройки цен */
-.price {
-    font-size: 18px;
+.item-card .name {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    min-height: 32px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: #ffffff;
+}
+
+.item-card .price {
+    font-size: 15px !important;
     font-weight: bold;
-    color: #ffd700; /* Золотой цвет для цены */
-    margin: 8px 0;
+    color: #ffd700;
+    margin: 6px 0 !important;
 }
 
-/* Настройки кнопок "В корзину" */
+/* КНОПКИ */
 button {
     background: linear-gradient(135deg, #0088cc, #005588);
     color: #ffffff;
-    font-size: 16px;
+    font-size: 13px !important;
     font-weight: bold;
-    padding: 12px 24px;
+    padding: 8px 10px !important;
     border: none;
     border-radius: 25px;
     cursor: pointer;
@@ -92,19 +195,52 @@ button {
     transition: all 0.2s ease;
 }
 
-/* Анимация пульсации кнопки при клике */
-button.added {
-    animation: pulse 0.4s ease-in-out;
-    background: #28a745 !important;
+.qty-control-pill {
+    height: 36px !important;
+    padding: 2px 8px !important;
+    background: #8b5cf6 !important;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-@keyframes pulse {
+.pill-btn {
+    font-size: 15px !important;
+    width: 24px !important;
+    height: 24px !important;
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+.pill-count {
+    font-size: 14px !important;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* АНИМАЦИИ */
+.flying-item {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.5);
+}
+
+.cart-bump {
+    animation: bump 0.3s ease-in-out;
+}
+
+@keyframes bump {
     0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    50% { transform: scale(1.2); }
     100% { transform: scale(1); }
 }
 
-/* Всплывающее уведомление (Toast) */
+/* ВСУПЛЫВАЮЩИЕ УВЕДОМЛЕНИЯ */
 .toast-notification {
     position: fixed;
     bottom: 20px;
@@ -126,77 +262,11 @@ button.added {
     opacity: 1;
 }
 
-/* Скрытие элементов для переключения экранов */
 .hidden {
     display: none !important;
 }
-/* СТИЛИ ДЛЯ СПИСКА В КОРЗИНЕ */
-.cart-line {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #12131c;
-    border: 1px solid #2b2d42;
-    border-radius: 12px;
-    padding: 10px 15px;
-    margin-bottom: 10px;
-}
 
-.cart-item-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.cart-item-name {
-    font-weight: bold;
-    font-size: 15px;
-    color: #ffffff;
-}
-
-.cart-item-price {
-    font-size: 13px;
-    color: #ffd700;
-    margin-top: 2px;
-}
-
-.cart-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.qty-btn {
-    width: 32px !important;
-    height: 32px !important;
-    padding: 0 !important;
-    font-size: 16px !important;
-    line-height: 32px !important;
-    border-radius: 8px !important;
-    background: #2b2d42 !important;
-    color: #ffffff !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.qty-btn:active {
-    background: #3a3d5c !important;
-}
-
-.qty-count {
-    font-weight: bold;
-    font-size: 15px;
-    min-width: 20px;
-    text-align: center;
-}
-
-.empty-cart-text {
-    text-align: center;
-    color: #8e8e93;
-    padding: 20px 0;
-}
-/* КАРТОЧКА ТОВАРА В КОРЗИНЕ */
+/* ЭКРАН КОРЗИНЫ */
 .cart-card {
     background: #181922;
     border: 1px solid #282936;
@@ -256,7 +326,6 @@ button.added {
     margin: 4px 0 10px 0;
 }
 
-/* ПЕРЕКЛЮЧАТЕЛЬ + / - В КОРЗИНЕ */
 .cart-pill-controls {
     background: #242533;
     border-radius: 20px;
@@ -284,7 +353,6 @@ button.added {
     font-weight: 700;
 }
 
-/* СНИЖНИЙ БЛОК "ИТОГО" И КНОПКА "К ОФОРМЛЕНИЮ" */
 .cart-summary-block {
     margin-top: 20px;
     border-top: 1px solid #282936;
@@ -310,67 +378,4 @@ button.added {
     padding: 14px !important;
     font-size: 16px !important;
     font-weight: 700 !important;
-}
-/* Сетка каталога в 2 колонки */
-.catalog {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-    padding-bottom: 20px;
-}
-
-/* Адаптация карточек под 2 колонки */
-.item-card {
-    margin-bottom: 0 !important; /* Отступ регулируется сеткой gap */
-    padding: 10px !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-    box-sizing: border-box;
-}
-
-/* Оптимизация размера картинок для компактных карточек */
-.item-card img {
-    max-width: 70px !important;
-    max-height: 70px !important;
-    margin: 0 auto 8px auto !important;
-}
-
-/* Название товара в 2 строки макс */
-.item-card .name {
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.2;
-    min-height: 32px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.item-card .price {
-    font-size: 15px !important;
-    margin: 6px 0 !important;
-}
-
-/* Компактные кнопки для сетки */
-.item-card button {
-    padding: 8px 10px !important;
-    font-size: 13px !important;
-}
-
-.qty-control-pill {
-    height: 36px !important;
-    padding: 2px 8px !important;
-}
-
-.pill-btn {
-    font-size: 15px !important;
-    width: 24px !important;
-    height: 24px !important;
-}
-
-.pill-count {
-    font-size: 14px !important;
 }
