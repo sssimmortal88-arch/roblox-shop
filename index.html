@@ -9,38 +9,50 @@
 </head>
 <body>
   <header class="topbar">
-    <h1>MM2 EZZ SHOP</h1>
+    <h1>MM2 EZ SHOP</h1>
     <button type="button" class="cart-badge" id="openCartBtn">🛒 <span id="cartBadge">0</span></button>
   </header>
 
-  <!-- Блок поиска с иконкой и отдельной кнопкой фильтров -->
+  <!-- Поисковая строка и кнопка вызова фильтра -->
   <div class="filters">
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder="Я ищу...">
     </div>
     
-    <div class="select-wrapper">
-      <button type="button" class="filter-btn-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="4" y1="21" x2="4" y2="14"></line>
-          <line x1="4" y1="10" x2="4" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12" y2="3"></line>
-          <line x1="20" y1="21" x2="20" y2="16"></line>
-          <line x1="20" y1="12" x2="20" y2="3"></line>
-          <line x1="1" y1="14" x2="7" y2="14"></line>
-          <line x1="9" y1="8" x2="15" y2="8"></line>
-          <line x1="17" y1="16" x2="23" y2="16"></line>
-        </svg>
-      </button>
-      <select id="categoryFilter">
-        <option value="all">Все категории</option>
-        <option value="knife">Ножи</option>
-        <option value="gun">Оружие</option>
-        <option value="pet">Питомцы</option>
-      </select>
-    </div>
+    <button type="button" class="filter-btn-icon" id="toggleFilterBtn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" y1="21" x2="4" y2="14"></line>
+        <line x1="4" y1="10" x2="4" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12" y2="3"></line>
+        <line x1="20" y1="21" x2="20" y2="16"></line>
+        <line x1="20" y1="12" x2="20" y2="3"></line>
+        <line x1="1" y1="14" x2="7" y2="14"></line>
+        <line x1="9" y1="8" x2="15" y2="8"></line>
+        <line x1="17" y1="16" x2="23" y2="16"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Выпадающая сверху шторка сортировки -->
+  <div id="filterDropdown" class="sort-dropdown">
+    <div class="sort-title">Сортировать по</div>
+    <label class="sort-option">
+      <input type="radio" name="sortOption" value="default" checked>
+      <span class="custom-radio"></span>
+      По умолчанию
+    </label>
+    <label class="sort-option">
+      <input type="radio" name="sortOption" value="cheap">
+      <span class="custom-radio"></span>
+      Самые дешевые
+    </label>
+    <label class="sort-option">
+      <input type="radio" name="sortOption" value="expensive">
+      <span class="custom-radio"></span>
+      Самые дорогие
+    </label>
   </div>
 
   <main id="catalog" class="catalog"></main>
@@ -48,11 +60,7 @@
   <!-- Экран корзины -->
   <div id="cartScreen" class="screen hidden">
     <h2>Корзина</h2>
-    
-    <!-- Динамический список товаров -->
     <div id="cartItems"></div>
-
-    <!-- Блок Итого -->
     <div class="cart-summary-block">
       <div id="cartCountLabel" class="cart-count-text">В корзине 0 товаров</div>
       <div class="cart-total-title">Итого: <span id="cartTotal">0</span> ₸</div>
