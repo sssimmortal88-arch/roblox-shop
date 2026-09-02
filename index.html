@@ -10,7 +10,10 @@
 <body>
   <header class="topbar">
     <h1>MM2 EZ SHOP</h1>
-    <button type="button" class="cart-badge" id="openCartBtn">🛒 <span id="cartBadge">0</span></button>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button type="button" class="cart-badge" id="openHistoryBtn">📜 Заказы</button>
+      <button type="button" class="cart-badge" id="openCartBtn">🛒 <span id="cartBadge">0</span></button>
+    </div>
   </header>
 
   <!-- Поисковая строка и кнопка вызова фильтра -->
@@ -79,13 +82,21 @@
     </div>
   </div>
 
-  <!-- Экран статуса заказа -->
+  <!-- Экран статуса созданного заказа -->
   <div id="statusScreen" class="screen hidden">
     <h2>Заказ отправлен ✅</h2>
     <p>Мы проверим оплату и пришлём тебе ссылку/приглашение в приватный сервер, где бот выдаст предметы.</p>
     <p id="orderIdText"></p>
     <button id="checkStatusBtn" class="primary-btn">Проверить статус</button>
-    <div id="deliveryLink"></div>
+    <div id="deliveryLink" style="margin-top:15px;"></div>
+    <button id="statusToCatalogBtn" class="secondary-btn" style="width:100%; background:transparent; margin-top:15px; border:none; color:#a0a0ab;">← В каталог</button>
+  </div>
+
+  <!-- Экран Истории заказов -->
+  <div id="historyScreen" class="screen hidden">
+    <h2>История заказов 📜</h2>
+    <div id="historyList"></div>
+    <button id="backFromHistoryBtn" class="secondary-btn" style="width:100%; background:transparent; margin-top:15px; border:none; color:#a0a0ab;">← Назад в каталог</button>
   </div>
 
   <script src="app.js"></script>
