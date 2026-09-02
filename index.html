@@ -15,7 +15,7 @@
     </div>
   </header>
 
-  <!-- Поисковая строка и кнопка вызова фильтра -->
+  <!-- Поисковая строка и кнопка фильтра -->
   <div class="filters">
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
@@ -37,7 +37,7 @@
     </button>
   </div>
 
-  <!-- Выпадающая сверху шторка сортировки -->
+  <!-- Выпадающая панель сортировки -->
   <div id="filterDropdown" class="sort-dropdown">
     <div class="sort-title">Сортировать по</div>
     <label class="sort-option">
@@ -57,23 +57,23 @@
     </label>
   </div>
 
-  <!-- Блок "Весь ассортимент" и анимационные плашки -->
+  <!-- Блок категорий с горизонтальным скроллом -->
   <div class="category-section">
     <h2 class="section-title">Весь ассортимент</h2>
     <div class="category-scroll" id="categoryContainer">
-      <button class="cat-chip active" data-category="all">Все</button>
-      <button class="cat-chip" data-category="krupnye">Крупные</button>
-      <button class="cat-chip" data-category="godly">Годли</button>
-      <button class="cat-chip" data-category="chroma">Хромы</button>
-      <button class="cat-chip" data-category="sets">Сеты</button>
-      <button class="cat-chip" data-category="pets">Петы</button>
-      <button class="cat-chip" data-category="vintage">Винтажки</button>
+      <button type="button" class="cat-chip active" data-category="all">Все</button>
+      <button type="button" class="cat-chip" data-category="krupnye">Крупные</button>
+      <button type="button" class="cat-chip" data-category="godly">Годли</button>
+      <button type="button" class="cat-chip" data-category="chroma">Хромы</button>
+      <button type="button" class="cat-chip" data-category="sets">Сеты</button>
+      <button type="button" class="cat-chip" data-category="pets">Петы</button>
+      <button type="button" class="cat-chip" data-category="vintage">Винтажки</button>
     </div>
   </div>
 
   <main id="catalog" class="catalog"></main>
 
-  <!-- Фиксированная нижняя панель корзины -->
+  <!-- Плавающая кнопка корзины снизу -->
   <div id="bottomCartBar" class="bottom-cart-bar hidden">
     <button id="openCartBtn" class="floating-cart-btn">
       КОРЗИНА (<span id="cartBadge">0</span>)
@@ -102,7 +102,7 @@
     </div>
   </div>
 
-  <!-- Экран статуса созданного заказа -->
+  <!-- Экран статуса заказа -->
   <div id="statusScreen" class="screen hidden">
     <h2>Заказ отправлен ✅</h2>
     <p>Мы проверим оплату и пришлём тебе ссылку/приглашение в приватный сервер, где бот выдаст предметы.</p>
@@ -112,7 +112,7 @@
     <button id="statusToCatalogBtn" class="secondary-btn" style="width:100%; background:transparent; margin-top:15px; border:none; color:#a0a0ab;">← В каталог</button>
   </div>
 
-  <!-- Экран Истории заказов -->
+  <!-- Экран истории заказов -->
   <div id="historyScreen" class="screen hidden">
     <h2>История заказов 📜</h2>
     <div id="historyList"></div>
