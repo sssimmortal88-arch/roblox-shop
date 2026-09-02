@@ -9,14 +9,65 @@ let cart = {}; // { productId: qty }
 
 // ---------- Инициализация ----------
 async function loadProducts() {
-  const res = await fetch(`${API_BASE}/products`);
-  products = await res.json();
-  renderCatalog(products);
+  try {
+    const res = await fetch(`${API_BASE}/products`);
+    products = await res.json();
+    applyFilters();
+  } catch (err) {
+    console.error("Ошибка загрузки товаров:", err);
+  }
+}
+
+// ---------- Слушатели фильтров и шторки ----------
+document.addEventListener("DOMContentLoaded", () => {
+  // Поиск по названию
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.addEventListener("input", applyFilters);
+  }
+
+  // Кнопка открытия/закрытия шторки сортировки
+  const toggleBtn = document.getElementById("toggleFilterBtn");
+  const dropdown = document.getElementById("filterDropdown");
+  if (toggleBtn && dropdown) {
+    toggleBtn.addEventListener("click", () => {
+      dropdown.classList.toggle("open");
+    });
+  }
+
+  // Слушатели радио-кнопок сортировки
+  document.querySelectorAll('input[name="sortOption"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+      applyFilters();
+    });
+  });
+});
+
+// ---------- Фильтрация и сортировка ----------
+function applyFilters() {
+  const searchVal = document.getElementById("searchInput")?.value.toLowerCase() || "";
+  const sortVal = document.querySelector('input[name="sortOption"]:checked')?.value || "default";
+
+  // 1. Поиск по названию
+  let filtered = products.filter(p =>
+    p.name.toLowerCase().includes(searchVal)
+  );
+
+  // 2. Сортировка по цене
+  if (sortVal === "cheap") {
+    filtered.sort((a, b) => a.price - b.price); // Самые дешевые
+  } else if (sortVal === "expensive") {
+    filtered.sort((a, b) => b.price - a.price); // Самые дорогие
+  }
+
+  renderCatalog(filtered);
 }
 
 // ---------- Каталог ----------
 function renderCatalog(list) {
   const catalog = document.getElementById("catalog");
+  if (!catalog) return;
+
   catalog.innerHTML = list.map(p => {
     const qty = cart[p.id] || 0;
     
@@ -38,19 +89,6 @@ function renderCatalog(list) {
       </div>
     `;
   }).join("");
-}
-
-// ---------- Фильтры ----------
-document.getElementById("searchInput").addEventListener("input", applyFilters);
-document.getElementById("categoryFilter").addEventListener("change", applyFilters);
-
-function applyFilters() {
-  const q = document.getElementById("searchInput").value.toLowerCase();
-  const cat = document.getElementById("categoryFilter").value;
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(q) && (cat === "all" || p.category === cat)
-  );
-  renderCatalog(filtered);
 }
 
 // ---------- Работа с товарами ----------
@@ -143,7 +181,10 @@ function removeItemCompletely(id) {
 
 function updateCartBadge() {
   const count = Object.values(cart).reduce((a, b) => a + b, 0);
-  document.getElementById("cartBadge").textContent = `🛒 ${count}`;
+  const cartBadge = document.getElementById("cartBadge");
+  if (cartBadge) {
+    cartBadge.textContent = count;
+  }
 }
 
 // ---------- Отрисовка стильной корзины ----------
@@ -200,6 +241,8 @@ function renderCart() {
 document.getElementById("openCartBtn").onclick = () => {
   document.getElementById("catalog").classList.add("hidden");
   document.querySelector(".filters").classList.add("hidden");
+  const dropdown = document.getElementById("filterDropdown");
+  if (dropdown) dropdown.classList.remove("open"); // Скрываем шторку при переходе в корзину
   document.getElementById("cartScreen").classList.remove("hidden");
   renderCart();
 };
@@ -230,37 +273,45 @@ document.getElementById("submitOrderBtn").onclick = async () => {
     init_data: tg.initData
   };
 
-  const res = await fetch(`${API_BASE}/order`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
+  try {
+    const res = await fetch(`${API_BASE}/order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
 
-  if (data.order_id) {
-    cart = {};
-    updateCartBadge();
-    document.getElementById("cartScreen").classList.add("hidden");
-    document.getElementById("statusScreen").classList.remove("hidden");
-    document.getElementById("orderIdText").textContent = `Заказ #${data.order_id}`;
-    window.currentOrderId = data.order_id;
-  } else {
-    tg.showAlert("Ошибка при создании заказа, попробуйте ещё раз");
+    if (data.order_id) {
+      cart = {};
+      updateCartBadge();
+      document.getElementById("cartScreen").classList.add("hidden");
+      document.getElementById("statusScreen").classList.remove("hidden");
+      document.getElementById("orderIdText").textContent = `Заказ #${data.order_id}`;
+      window.currentOrderId = data.order_id;
+    } else {
+      tg.showAlert("Ошибка при создании заказа, попробуйте ещё раз");
+    }
+  } catch (err) {
+    tg.showAlert("Ошибка соединения с сервером");
   }
 };
 
 // ---------- Проверка статуса ----------
 document.getElementById("checkStatusBtn").onclick = async () => {
-  const res = await fetch(`${API_BASE}/order/${window.currentOrderId}`);
-  const data = await res.json();
-  if (data.status === "approved") {
-    document.getElementById("deliveryLink").innerHTML =
-      `<p>Оплата подтверждена! Ссылка на приватный сервер:</p>
-       <a href="${data.delivery_link}" target="_blank">${data.delivery_link}</a>`;
-  } else if (data.status === "rejected") {
-    document.getElementById("deliveryLink").innerHTML = `<p>Оплата не найдена. Напишите в поддержку.</p>`;
-  } else {
-    tg.showAlert("Оплата ещё проверяется, попробуйте позже");
+  try {
+    const res = await fetch(`${API_BASE}/order/${window.currentOrderId}`);
+    const data = await res.json();
+    if (data.status === "approved") {
+      document.getElementById("deliveryLink").innerHTML =
+        `<p>Оплата подтверждена! Ссылка на приватный сервер:</p>
+         <a href="${data.delivery_link}" target="_blank">${data.delivery_link}</a>`;
+    } else if (data.status === "rejected") {
+      document.getElementById("deliveryLink").innerHTML = `<p>Оплата не найдена. Напишите в поддержку.</p>`;
+    } else {
+      tg.showAlert("Оплата ещё проверяется, попробуйте позже");
+    }
+  } catch (err) {
+    tg.showAlert("Не удалось проверить статус");
   }
 };
 
