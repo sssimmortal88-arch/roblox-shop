@@ -6,7 +6,7 @@ const API_BASE = "https://roblox-shop-4e0j.onrender.com/api";
 
 let products = [];
 let cart = {}; // { productId: qty }
-let selectedCategory = "all"; // Выбранная категория
+let selectedCategory = "all";
 
 // ---------- Работа с локальной историей заказов ----------
 function getSavedOrders() {
@@ -83,7 +83,7 @@ function applyFilters() {
     return matchesSearch && matchesCategory;
   });
 
-  // 2. Сортировка по цене
+  // 2. Сортировка
   if (sortVal === "cheap") {
     filtered.sort((a, b) => a.price - b.price);
   } else if (sortVal === "expensive") {
@@ -205,7 +205,6 @@ function removeItemCompletely(id) {
   }
 }
 
-// Обновление бейджа и показа/скрытия нижней панели
 function updateCartBadge() {
   const count = Object.values(cart).reduce((a, b) => a + b, 0);
   const cartBadge = document.getElementById("cartBadge");
@@ -215,7 +214,6 @@ function updateCartBadge() {
     cartBadge.textContent = count;
   }
 
-  // Показываем плашку снизу только в каталоге, если есть товары
   const catalog = document.getElementById("catalog");
   const isCatalogVisible = catalog && !catalog.classList.contains("hidden");
 
@@ -289,7 +287,6 @@ function hideAllScreens() {
   document.getElementById("statusScreen").classList.add("hidden");
   document.getElementById("historyScreen").classList.add("hidden");
 
-  // Скрываем нижнюю корзину при переходе на другие экраны
   const bottomBar = document.getElementById("bottomCartBar");
   if (bottomBar) bottomBar.classList.add("hidden");
   
@@ -304,7 +301,6 @@ function showCatalog() {
   const catSec = document.querySelector(".category-section");
   if (catSec) catSec.classList.remove("hidden");
 
-  // Проверяем видимость нижней плашки при возврате в каталог
   updateCartBadge();
 }
 
@@ -442,4 +438,4 @@ function showToast(message) {
   setTimeout(() => {
     toast.classList.remove('show');
   }, 2000);
-};
+}
