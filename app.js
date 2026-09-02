@@ -151,7 +151,7 @@ function addToCart(id) {
 
       requestAnimationFrame(() => {
         flyingImg.style.top = `${cartRect.top + 5}px`;
-        flyingImg.style.left = `${cartRect.left + 10}px`;
+        flyingImg.style.left = `${cartRect.left + (cartRect.width / 2) - 10}px`;
         flyingImg.style.width = '20px';
         flyingImg.style.height = '20px';
         flyingImg.style.opacity = '0.2';
@@ -205,11 +205,26 @@ function removeItemCompletely(id) {
   }
 }
 
+// Обновление бейджа и показа/скрытия нижней панели
 function updateCartBadge() {
   const count = Object.values(cart).reduce((a, b) => a + b, 0);
   const cartBadge = document.getElementById("cartBadge");
+  const bottomBar = document.getElementById("bottomCartBar");
+
   if (cartBadge) {
     cartBadge.textContent = count;
+  }
+
+  // Показываем плашку снизу только в каталоге, если есть товары
+  const catalog = document.getElementById("catalog");
+  const isCatalogVisible = catalog && !catalog.classList.contains("hidden");
+
+  if (bottomBar) {
+    if (count > 0 && isCatalogVisible) {
+      bottomBar.classList.remove("hidden");
+    } else {
+      bottomBar.classList.add("hidden");
+    }
   }
 }
 
@@ -222,7 +237,7 @@ function renderCart() {
   const cartEntries = Object.entries(cart).filter(([_, qty]) => qty > 0);
 
   if (cartEntries.length === 0) {
-    container.innerHTML = "<p class='empty-cart-text'>Корзина пуста 🛒</p>";
+    container.innerHTML = "<p class='empty-cart-text' style='text-align:center; color:#a0a0ab; padding:30px 0;'>Корзина пуста 🛒</p>";
     document.getElementById("cartTotal").textContent = "0";
     const countLabel = document.getElementById("cartCountLabel");
     if (countLabel) countLabel.textContent = "В корзине 0 товаров";
@@ -273,6 +288,10 @@ function hideAllScreens() {
   document.getElementById("cartScreen").classList.add("hidden");
   document.getElementById("statusScreen").classList.add("hidden");
   document.getElementById("historyScreen").classList.add("hidden");
+
+  // Скрываем нижнюю корзину при переходе на другие экраны
+  const bottomBar = document.getElementById("bottomCartBar");
+  if (bottomBar) bottomBar.classList.add("hidden");
   
   const dropdown = document.getElementById("filterDropdown");
   if (dropdown) dropdown.classList.remove("open");
@@ -284,6 +303,9 @@ function showCatalog() {
   document.querySelector(".filters").classList.remove("hidden");
   const catSec = document.querySelector(".category-section");
   if (catSec) catSec.classList.remove("hidden");
+
+  // Проверяем видимость нижней плашки при возврате в каталог
+  updateCartBadge();
 }
 
 document.getElementById("openCartBtn").onclick = () => {
@@ -420,4 +442,4 @@ function showToast(message) {
   setTimeout(() => {
     toast.classList.remove('show');
   }, 2000);
-}
+};
