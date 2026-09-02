@@ -6,6 +6,7 @@ const API_BASE = "https://roblox-shop-4e0j.onrender.com/api";
 
 let products = [];
 let cart = {}; // { productId: qty }
+let selectedCategory = "all"; // Выбранная категория
 
 // ---------- Работа с локальной историей заказов ----------
 function getSavedOrders() {
@@ -19,7 +20,7 @@ function getSavedOrders() {
 function saveOrderToHistory(orderId) {
   const orders = getSavedOrders();
   if (!orders.includes(orderId)) {
-    orders.unshift(orderId); // Новые заказы добавляем в начало
+    orders.unshift(orderId);
     localStorage.setItem("user_orders", JSON.stringify(orders));
   }
 }
@@ -35,7 +36,7 @@ async function loadProducts() {
   }
 }
 
-// ---------- Слушатели фильтров и шторки ----------
+// ---------- Слушатели событий ----------
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
@@ -51,10 +52,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.querySelectorAll('input[name="sortOption"]').forEach(radio => {
-    radio.addEventListener("change", () => {
+    radio.addEventListener("change", applyFilters);
+  });
+
+  // Клик по плашкам категорий
+  const catContainer = document.getElementById("categoryContainer");
+  if (catContainer) {
+    catContainer.addEventListener("click", (e) => {
+      const chip = e.target.closest(".cat-chip");
+      if (!chip) return;
+
+      document.querySelectorAll(".cat-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+
+      selectedCategory = chip.dataset.category || "all";
       applyFilters();
     });
-  });
+  }
 });
 
 // ---------- Фильтрация и сортировка ----------
@@ -62,10 +76,14 @@ function applyFilters() {
   const searchVal = document.getElementById("searchInput")?.value.toLowerCase() || "";
   const sortVal = document.querySelector('input[name="sortOption"]:checked')?.value || "default";
 
-  let filtered = products.filter(p =>
-    p.name.toLowerCase().includes(searchVal)
-  );
+  // 1. Поиск и Категории
+  let filtered = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchVal);
+    const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
+  // 2. Сортировка по цене
   if (sortVal === "cheap") {
     filtered.sort((a, b) => a.price - b.price);
   } else if (sortVal === "expensive") {
@@ -79,6 +97,11 @@ function applyFilters() {
 function renderCatalog(list) {
   const catalog = document.getElementById("catalog");
   if (!catalog) return;
+
+  if (list.length === 0) {
+    catalog.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:#a0a0ab; padding:30px 0;'>Товары не найдены 🔍</p>";
+    return;
+  }
 
   catalog.innerHTML = list.map(p => {
     const qty = cart[p.id] || 0;
@@ -244,6 +267,9 @@ function renderCart() {
 function hideAllScreens() {
   document.getElementById("catalog").classList.add("hidden");
   document.querySelector(".filters").classList.add("hidden");
+  const catSec = document.querySelector(".category-section");
+  if (catSec) catSec.classList.add("hidden");
+  
   document.getElementById("cartScreen").classList.add("hidden");
   document.getElementById("statusScreen").classList.add("hidden");
   document.getElementById("historyScreen").classList.add("hidden");
@@ -256,6 +282,8 @@ function showCatalog() {
   hideAllScreens();
   document.getElementById("catalog").classList.remove("hidden");
   document.querySelector(".filters").classList.remove("hidden");
+  const catSec = document.querySelector(".category-section");
+  if (catSec) catSec.classList.remove("hidden");
 }
 
 document.getElementById("openCartBtn").onclick = () => {
@@ -306,7 +334,6 @@ document.getElementById("submitOrderBtn").onclick = async () => {
       cart = {};
       updateCartBadge();
       
-      // Сохраняем номер заказа в истории на устройстве
       saveOrderToHistory(data.order_id);
 
       hideAllScreens();
@@ -322,7 +349,7 @@ document.getElementById("submitOrderBtn").onclick = async () => {
   }
 };
 
-// ---------- Проверка статуса единичного заказа ----------
+// ---------- Проверка статуса заказа ----------
 document.getElementById("checkStatusBtn").onclick = async () => {
   if (!window.currentOrderId) return;
   checkSingleOrderStatus(window.currentOrderId, document.getElementById("deliveryLink"));
@@ -359,7 +386,7 @@ function renderHistory() {
 
   container.innerHTML = orders.map(id => `
     <div style="background:#181922; border:1px solid #282936; border-radius:14px; padding:15px; margin-bottom:12px;">
-      <div style="display:flex; justify-between:space-between; align-items:center; margin-bottom:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <strong style="font-size:16px;">Заказ #${id}</strong>
         <button onclick="checkHistoryItemStatus(${id})" class="primary-btn" style="padding:6px 12px; font-size:12px;">Проверить</button>
       </div>
