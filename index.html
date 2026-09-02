@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MM2 EZ SHOP</title>
+<title>MM2 EZZ SHOP</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
-    <h1>MM2 EZ SHOP</h1>
+    <h1>MM2 EZZ SHOP</h1>
     <div style="display: flex; gap: 8px; align-items: center;">
       <button type="button" class="cart-badge" id="openHistoryBtn">📜 Заказы</button>
       <button type="button" class="cart-badge" id="openCartBtn">🛒 <span id="cartBadge">0</span></button>
@@ -56,6 +56,20 @@
       <span class="custom-radio"></span>
       Самые дорогие
     </label>
+  </div>
+
+  <!-- Блок "Весь ассортимент" и анимационные плашки -->
+  <div class="category-section">
+    <h2 class="section-title">Весь ассортимент</h2>
+    <div class="category-scroll" id="categoryContainer">
+      <button class="cat-chip active" data-category="all">Все</button>
+      <button class="cat-chip" data-category="krupnye">Крупные</button>
+      <button class="cat-chip" data-category="godly">Годли</button>
+      <button class="cat-chip" data-category="chroma">Хромы</button>
+      <button class="cat-chip" data-category="sets">Сеты</button>
+      <button class="cat-chip" data-category="pets">Петы</button>
+      <button class="cat-chip" data-category="vintage">Винтажки</button>
+    </div>
   </div>
 
   <main id="catalog" class="catalog"></main>
