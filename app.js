@@ -14,16 +14,30 @@ async function loadProducts() {
   renderCatalog(products);
 }
 
+// ---------- Каталог ----------
 function renderCatalog(list) {
   const catalog = document.getElementById("catalog");
-  catalog.innerHTML = list.map(p => `
-    <div class="item-card">
-      <img src="${p.image_url}" alt="${p.name}">
-      <div class="name">${p.name}</div>
-      <div class="price">${p.price} ₸</div>
-      <button onclick="addToCart(${p.id})">В корзину</button>
-    </div>
-  `).join("");
+  catalog.innerHTML = list.map(p => {
+    const qty = cart[p.id] || 0;
+    
+    // Если товар уже в корзине, показываем фиолетовый переключатель "- 1 +"
+    const buttonHtml = qty > 0 
+      ? `<div class="qty-control-pill">
+           <button class="pill-btn" onclick="changeQty(${p.id}, -1)">—</button>
+           <span class="pill-count">${qty}</span>
+           <button class="pill-btn" onclick="changeQty(${p.id}, 1)">+</button>
+         </div>`
+      : `<button class="buy-btn" onclick="addToCart(${p.id})">В корзину</button>`;
+
+    return `
+      <div class="item-card">
+        <img src="${p.image_url}" alt="${p.name}">
+        <div class="name">${p.name}</div>
+        <div class="price">${p.price} ₸</div>
+        <div id="btn-container-${p.id}">${buttonHtml}</div>
+      </div>
+    `;
+  }).join("");
 }
 
 // ---------- Фильтры ----------
@@ -39,66 +53,18 @@ function applyFilters() {
   renderCatalog(filtered);
 }
 
-// ---------- Корзина ----------
+// ---------- Работа с товарами ----------
 function addToCart(id) {
-    cart[id] = (cart[id] || 0) + 1;
-    updateCartBadge();
+  cart[id] = 1;
+  updateCartBadge();
+  applyFilters(); // Перерисовываем каталог, чтобы синяя кнопка сменилась на фиолетовую
+  
+  if (window.tg && tg.HapticFeedback) {
     tg.HapticFeedback.impactOccurred("light");
-
-    // Всплывающее уведомление
-    showToast("🛒 Товар добавлен в корзину!");
-
-    // Анимация нажатия на кнопку
-    if (window.event && window.event.target) {
-        const btn = window.event.target;
-        btn.classList.add('added');
-        setTimeout(() => btn.classList.remove('added'), 400);
-    }
-}
-
-function updateCartBadge() {
-  const count = Object.values(cart).reduce((a, b) => a + b, 0);
-  document.getElementById("cartBadge").textContent = `🛒 ${count}`;
-}
-
-// Отрисовка интерактивной корзины с кнопками "+" и "-"
-function renderCart() {
-  const container = document.getElementById("cartItems");
-  let total = 0;
-
-  const cartEntries = Object.entries(cart).filter(([_, qty]) => qty > 0);
-
-  if (cartEntries.length === 0) {
-    container.innerHTML = "<p class='empty-cart-text'>Корзина пуста 🛒</p>";
-    document.getElementById("cartTotal").textContent = "0";
-    return;
   }
-
-  container.innerHTML = cartEntries.map(([id, qty]) => {
-    const p = products.find(p => p.id == id);
-    if (!p) return "";
-    const sum = p.price * qty;
-    total += sum;
-
-    return `
-      <div class="cart-line">
-        <div class="cart-item-info">
-          <span class="cart-item-name">${p.name}</span>
-          <span class="cart-item-price">${sum} ₸</span>
-        </div>
-        <div class="cart-controls">
-          <button type="button" class="qty-btn" onclick="changeQty(${p.id}, -1)">-</button>
-          <span class="qty-count">${qty}</span>
-          <button type="button" class="qty-btn" onclick="changeQty(${p.id}, 1)">+</button>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  document.getElementById("cartTotal").textContent = total;
+  showToast("🛒 Товар добавлен в корзину!");
 }
 
-// Функция управления количеством товара (+1 / -1)
 function changeQty(id, delta) {
   if (!cart[id]) return;
   cart[id] += delta;
@@ -108,13 +74,86 @@ function changeQty(id, delta) {
   }
 
   updateCartBadge();
-  renderCart();
+  applyFilters(); // Обновляем состояние кнопок в каталоге
   
+  // Если открыт экран корзины, обновляем и его
+  const cartScreen = document.getElementById("cartScreen");
+  if (cartScreen && !cartScreen.classList.contains("hidden")) {
+    renderCart();
+  }
+
   if (window.tg && tg.HapticFeedback) {
     tg.HapticFeedback.impactOccurred("light");
   }
 }
 
+// Полное удаление товара по нажатию на крестик в корзине
+function removeItemCompletely(id) {
+  delete cart[id];
+  updateCartBadge();
+  applyFilters();
+  renderCart();
+  if (window.tg && tg.HapticFeedback) {
+    tg.HapticFeedback.impactOccurred("medium");
+  }
+}
+
+function updateCartBadge() {
+  const count = Object.values(cart).reduce((a, b) => a + b, 0);
+  document.getElementById("cartBadge").textContent = `🛒 ${count}`;
+}
+
+// ---------- Отрисовка стильной корзины ----------
+function renderCart() {
+  const container = document.getElementById("cartItems");
+  let total = 0;
+  let totalCount = 0;
+
+  const cartEntries = Object.entries(cart).filter(([_, qty]) => qty > 0);
+
+  if (cartEntries.length === 0) {
+    container.innerHTML = "<p class='empty-cart-text'>Корзина пуста 🛒</p>";
+    document.getElementById("cartTotal").textContent = "0";
+    const countLabel = document.getElementById("cartCountLabel");
+    if (countLabel) countLabel.textContent = "В корзине 0 товаров";
+    return;
+  }
+
+  container.innerHTML = cartEntries.map(([id, qty]) => {
+    const p = products.find(p => p.id == id);
+    if (!p) return "";
+    const sum = p.price * qty;
+    total += sum;
+    totalCount += qty;
+
+    return `
+      <div class="cart-card">
+        <img class="cart-item-img" src="${p.image_url}" alt="${p.name}">
+        <div class="cart-card-content">
+          <div class="cart-card-top">
+            <span class="cart-card-title">${p.name}</span>
+            <button type="button" class="cart-remove-btn" onclick="removeItemCompletely(${p.id})">✕</button>
+          </div>
+          <div class="cart-card-price">${p.price} ₸</div>
+          <div class="cart-pill-controls">
+            <button type="button" class="cart-pill-btn" onclick="changeQty(${p.id}, -1)">—</button>
+            <span class="cart-pill-count">${qty}</span>
+            <button type="button" class="cart-pill-btn" onclick="changeQty(${p.id}, 1)">+</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("cartTotal").textContent = total;
+  
+  const countLabel = document.getElementById("cartCountLabel");
+  if (countLabel) {
+    countLabel.textContent = `В корзине ${totalCount} товара`;
+  }
+}
+
+// ---------- Переключение экранов ----------
 document.getElementById("openCartBtn").onclick = () => {
   document.getElementById("catalog").classList.add("hidden");
   document.querySelector(".filters").classList.add("hidden");
@@ -145,7 +184,7 @@ document.getElementById("submitOrderBtn").onclick = async () => {
     telegram_username: tg.initDataUnsafe?.user?.username,
     roblox_nickname: nickname,
     items: Object.entries(cart).map(([id, qty]) => ({ product_id: Number(id), qty })),
-    init_data: tg.initData // backend должен провалидировать эту строку
+    init_data: tg.initData
   };
 
   const res = await fetch(`${API_BASE}/order`, {
@@ -184,19 +223,19 @@ document.getElementById("checkStatusBtn").onclick = async () => {
 
 loadProducts();
 
-// Функция вызова красивого уведомления
+// Функция вызова всплывающего уведомления
 function showToast(message) {
-    let toast = document.getElementById('toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'toast';
-        toast.className = 'toast-notification';
-        document.body.appendChild(toast);
-    }
-    toast.innerText = message;
-    toast.classList.add('show');
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast-notification';
+    document.body.appendChild(toast);
+  }
+  toast.innerText = message;
+  toast.classList.add('show');
 
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 2000);
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2000);
 }
