@@ -379,3 +379,79 @@ button {
     font-size: 16px !important;
     font-weight: 700 !important;
 }
+/* ВЫПАДАЮЩАЯ ШТОРКА ФИЛЬТРОВ */
+.sort-dropdown {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-15px);
+    transition: max-height 0.35s ease, opacity 0.3s ease, transform 0.3s ease, margin 0.3s ease;
+    background: #181922;
+    border: 1px solid transparent;
+    border-radius: 18px;
+    padding: 0 16px;
+    margin-bottom: 0;
+}
+
+.sort-dropdown.open {
+    max-height: 220px;
+    opacity: 1;
+    transform: translateY(0);
+    border-color: #282936;
+    padding: 16px;
+    margin-bottom: 15px;
+}
+
+.sort-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+/* Радио-кнопки в фиолетовом стиле */
+.sort-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #a0a0ab;
+    padding: 8px 0;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+.sort-option input {
+    display: none;
+}
+
+.custom-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #3a3d5c;
+    border-radius: 50%;
+    position: relative;
+    box-sizing: border-box;
+    transition: all 0.2s;
+}
+
+.sort-option input:checked + .custom-radio {
+    border-color: #8b5cf6;
+}
+
+.sort-option input:checked + .custom-radio::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 8px;
+    height: 8px;
+    background: #8b5cf6;
+    border-radius: 50%;
+}
+
+.sort-option input:checked ~ span,
+.sort-option input:checked {
+    color: #ffffff;
+}
