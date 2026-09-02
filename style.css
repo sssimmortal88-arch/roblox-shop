@@ -217,7 +217,7 @@ header h1, .header h1, .topbar h1 {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px !important;
-    padding-bottom: 20px;
+    padding-bottom: 80px !important;
 }
 
 .item-card {
@@ -300,12 +300,12 @@ button {
     color: #fff;
 }
 
-/* АНИМАЦИИ КОРЗИНЫ */
+/* АНИМАЦИИ КОРЗИНЫ (замедленная для видимости полета) */
 .flying-item {
     position: fixed;
     z-index: 9999;
     pointer-events: none;
-    transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: all 0.9s cubic-bezier(0.19, 1, 0.22, 1);
     border-radius: 50%;
     box-shadow: 0 5px 15px rgba(139, 92, 246, 0.5);
 }
@@ -320,26 +320,9 @@ button {
     100% { transform: scale(1); }
 }
 
-/* ВСУПЛЫВАЮЩИЕ УВЕДОМЛЕНИЯ */
+/* ВССПЛЫВАЮЩИЕ УВЕДОМЛЕНИЯ (Удалены) */
 .toast-notification {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background-color: rgba(40, 167, 69, 0.95);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 25px;
-    font-weight: bold;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    z-index: 9999;
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-}
-
-.toast-notification.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
+    display: none !important;
 }
 
 .hidden {
@@ -536,11 +519,13 @@ button {
 .sort-option input:checked {
     color: #ffffff;
 }
-/* ФИКСИРОВАННАЯ НИЖНЯЯ ПАНЕЛЬ КОРЗИНЫ */
+
+/* ФИКСИРОВАННАЯ НИЖНЯЯ ПАНЕЛЬ КОРЗИНЫ (Растянута на всю длину снизу) */
 .bottom-cart-bar {
     position: fixed;
     bottom: 0;
     left: 0;
+    right: 0;
     width: 100%;
     background: #12131c;
     border-top: 1px solid #2b2d42;
@@ -548,6 +533,7 @@ button {
     box-sizing: border-box;
     z-index: 1000;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+    border-radius: 0 !important;
 }
 
 .floating-cart-btn {
@@ -571,9 +557,4 @@ button {
 .floating-cart-btn:active {
     transform: scale(0.98);
     background: #7c3aed !important;
-}
-
-/* Отступ для каталога, чтобы нижняя плашка не перекрывала товары */
-.catalog {
-    padding-bottom: 80px !important;
 }
