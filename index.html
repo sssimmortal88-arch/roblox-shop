@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MM2 Shop</title>
+<title>MM2 EZ SHOP</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
-    <h1>MM2 Магазин</h1>
-    <div class="cart-badge" id="cartBadge">🛒 0</div>
+    <h1>MM2 EZ SHOP</h1>
+    <button type="button" class="cart-badge" id="openCartBtn">🛒 <span id="cartBadge">0</span></button>
   </header>
 
   <div class="filters">
@@ -28,20 +28,27 @@
   <!-- Экран корзины -->
   <div id="cartScreen" class="screen hidden">
     <h2>Корзина</h2>
+    
+    <!-- Динамический список товаров -->
     <div id="cartItems"></div>
-    <div class="total">Итого: <span id="cartTotal">0</span> ₸</div>
 
-    <label for="nickname">Ваш ник в Roblox</label>
-    <input type="text" id="nickname" placeholder="Например: xX_Player_Xx">
+    <!-- Блок Итого -->
+    <div class="cart-summary-block">
+      <div id="cartCountLabel" class="cart-count-text">В корзине 0 товаров</div>
+      <div class="cart-total-title">Итого: <span id="cartTotal">0</span> ₸</div>
 
-    <div class="payment-block">
-      <p>Переведите сумму на Kaspi по номеру/QR:</p>
-      <img src="kaspi-qr.png" alt="Kaspi QR" class="qr-img">
-      <p class="requisites">+7 7XX XXX XX XX (Kaspi Gold, Имя Фамилия)</p>
+      <label for="nickname" style="display:block; margin-bottom:8px; font-weight:600;">Ваш ник в Roblox</label>
+      <input type="text" id="nickname" placeholder="Например: xX_Player_Xx" style="width:100%; padding:12px; margin-bottom:15px; border-radius:12px; border:1px solid #282936; background:#181922; color:#fff; box-sizing:border-box;">
+
+      <div class="payment-block" style="text-align:center; margin-bottom:15px;">
+        <p style="margin-bottom:8px; color:#a0a0ab;">Переведите сумму на Kaspi по номеру/QR:</p>
+        <img src="kaspi-qr.png" alt="Kaspi QR" class="qr-img" style="max-width:150px; border-radius:12px;">
+        <p class="requisites" style="font-weight:bold; margin-top:8px;">+7 7XX XXX XX XX (Kaspi Gold)</p>
+      </div>
+
+      <button id="submitOrderBtn" class="primary-btn" style="width:100%;">К оформлению ›</button>
+      <button id="backToCatalogBtn" class="secondary-btn" style="width:100%; background:transparent; margin-top:8px; border:none; color:#a0a0ab;">← Назад в каталог</button>
     </div>
-
-    <button id="submitOrderBtn" class="primary-btn">Я оплатил, отправить заказ</button>
-    <button id="backToCatalogBtn" class="secondary-btn">Назад в каталог</button>
   </div>
 
   <!-- Экран статуса заказа -->
@@ -52,10 +59,6 @@
     <button id="checkStatusBtn" class="primary-btn">Проверить статус</button>
     <div id="deliveryLink"></div>
   </div>
-
-  <footer class="bottombar">
-    <button id="openCartBtn" class="primary-btn">Оформить заказ →</button>
-  </footer>
 
   <script src="app.js"></script>
 </body>
