@@ -11,9 +11,9 @@ app.use(cors());
 app.use(express.json());
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
+const ADMIN_TELEGRAM_ID = 5538562889;
 
-// --- Валидация initData от Telegram Mini App (важно для безопасности!) ---
-// Без этого кто угодно сможет слать POST /api/order с любыми данными.
+// --- Валидация initData от Telegram Mini App ---
 function validateInitData(initData) {
   try {
     const params = new URLSearchParams(initData);
@@ -34,20 +34,69 @@ function validateInitData(initData) {
   }
 }
 
-// --- Каталог ---
+// --- Каталог товаров ---
 app.get("/api/products", (req, res) => {
-  const products = db.prepare("SELECT * FROM products WHERE in_stock = 1").all();
+  const products = db.prepare("SELECT * FROM products").all();
   res.json(products);
 });
 
-// --- Создание заказа ---
-app.post("/api/order", (req, res) => {
-  const { telegram_id, telegram_username, roblox_nickname, items, init_data } = req.body;
+// ==================== АДМИН-ПАНЕЛЬ (РАБОТА С БАЗОЙ) ====================
 
-  // В продакшене раскомментировать - обязательная проверка подлинности запроса из Mini App
-  // if (!validateInitData(init_data)) {
-  //   return res.status(403).json({ error: "invalid init data" });
-  // }
+// 1. Добавление товара в БД
+app.post("/api/admin/products", (req, res) => {
+  const { telegram_id, name, price, stock, category, image_url } = req.body;
+
+  if (Number(telegram_id) !== ADMIN_TELEGRAM_ID) {
+    return res.status(403).json({ error: "Отказано в доступе" });
+  }
+
+  const info = db.prepare(`
+    INSERT INTO products (name, price, stock, in_stock, category, image_url)
+    VALUES (?, ?, ?, 1, ?, ?)
+  `).run(name, price, stock || 1, category || 'godly', image_url || 'kaspi-qr.png');
+
+  res.json({ id: info.lastInsertRowid, name, price, stock });
+});
+
+// 2. Изменение цены или количества товара в БД
+app.patch("/api/admin/products/:id", (req, res) => {
+  const { telegram_id, price, stock } = req.body;
+
+  if (Number(telegram_id) !== ADMIN_TELEGRAM_ID) {
+    return res.status(403).json({ error: "Отказано в доступе" });
+  }
+
+  const product = db.prepare("SELECT * FROM products WHERE id = ?").get(req.params.id);
+  if (!product) return res.status(404).json({ error: "Товар не найден" });
+
+  const newPrice = price !== undefined ? price : product.price;
+  const newStock = stock !== undefined ? stock : product.stock;
+  const inStock = newStock > 0 ? 1 : 0;
+
+  db.prepare(`
+    UPDATE products SET price = ?, stock = ?, in_stock = ? WHERE id = ?
+  `).run(newPrice, newStock, inStock, req.params.id);
+
+  res.json({ success: true });
+});
+
+// 3. Удаление товара из БД
+app.delete("/api/admin/products/:id", (req, res) => {
+  const { telegram_id } = req.body;
+
+  if (Number(telegram_id) !== ADMIN_TELEGRAM_ID) {
+    return res.status(403).json({ error: "Отказано в доступе" });
+  }
+
+  db.prepare("DELETE FROM products WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
+
+// ==================== ЗАКАЗЫ И ВЫДАЧА ====================
+
+// Создание заказа
+app.post("/api/order", (req, res) => {
+  const { telegram_id, telegram_username, roblox_nickname, items } = req.body;
 
   if (!roblox_nickname || !items || items.length === 0) {
     return res.status(400).json({ error: "invalid payload" });
@@ -56,7 +105,7 @@ app.post("/api/order", (req, res) => {
   const products = db.prepare("SELECT * FROM products").all();
   const enrichedItems = items.map(i => {
     const p = products.find(p => p.id === i.product_id);
-    return { name: p.name, price: p.price, qty: i.qty };
+    return { name: p ? p.name : "Товар", price: p ? p.price : 0, qty: i.qty };
   });
   const total = enrichedItems.reduce((sum, i) => sum + i.price * i.qty, 0);
 
@@ -71,15 +120,14 @@ app.post("/api/order", (req, res) => {
   res.json({ order_id: order.id });
 });
 
-// --- Статус заказа (Mini App опрашивает этот эндпоинт) ---
+// Статус заказа
 app.get("/api/order/:id", (req, res) => {
   const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(req.params.id);
   if (!order) return res.status(404).json({ error: "not found" });
   res.json({ status: order.status, delivery_link: order.delivery_link });
 });
 
-// --- Эндпоинт, который опрашивает Roblox-скрипт (см. roblox-integration/) ---
-// Отдаёт заказы status='approved', ещё не выданные ('delivered')
+// Заказы для Roblox-бота
 app.get("/api/pending-deliveries", (req, res) => {
   const orders = db.prepare("SELECT * FROM orders WHERE status = 'approved'").all();
   res.json(orders.map(o => ({
@@ -89,7 +137,7 @@ app.get("/api/pending-deliveries", (req, res) => {
   })));
 });
 
-// --- Roblox-скрипт вызывает это после успешной выдачи предмета игроку ---
+// Подтверждение выдачи от Roblox-бота
 app.post("/api/mark-delivered/:id", (req, res) => {
   db.prepare("UPDATE orders SET status = 'delivered' WHERE id = ?").run(req.params.id);
   res.json({ ok: true });
