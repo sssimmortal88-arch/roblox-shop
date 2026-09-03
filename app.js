@@ -79,6 +79,10 @@ document.addEventListener("DOMContentLoaded", () => {
       hideAllScreens();
       const cartScreen = document.getElementById("cartScreen");
       if (cartScreen) cartScreen.classList.remove("hidden");
+      
+      // Принудительно скрываем нижнюю плашку "КОРЗИНА (X)"
+      document.getElementById("bottomCartBar")?.classList.add("hidden"); 
+      
       renderCart();
     };
   }
@@ -102,6 +106,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Кнопка оформления заказа
   document.getElementById("submitOrderBtn")?.addEventListener("click", submitOrder);
+
+  // Автоскролл и скрытие клавиатуры при выборе чекбокса/вводе ника
+  const rulesCheckbox = document.getElementById("rulesCheckbox");
+  const submitOrderBtn = document.getElementById("submitOrderBtn");
+  if (rulesCheckbox && submitOrderBtn) {
+    rulesCheckbox.addEventListener("change", () => {
+      document.activeElement?.blur(); // Сворачиваем клавиатуру
+      setTimeout(() => {
+        submitOrderBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    });
+  }
 
   // Проверка статуса заказа
   document.getElementById("checkStatusBtn")?.addEventListener("click", () => {
@@ -283,6 +299,7 @@ function updateCartBadge() {
   const catalog = document.getElementById("catalog");
   const isCatalogVisible = catalog && !catalog.classList.contains("hidden");
 
+  // Показываем плашку "КОРЗИНА (X)" только если открыт каталог
   if (bottomBar) {
     if (count > 0 && isCatalogVisible) {
       bottomBar.classList.remove("hidden");
