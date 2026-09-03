@@ -89,14 +89,13 @@
         <button id="closeBtn" class="close-btn">&times;</button>
       </div>
       <div class="modal-content">
-        <!-- Сюда при необходимости загружается динамический контент -->
+        <!-- Текст правил -->
       </div>
     </div>
   </div>
 
   <!-- Экран корзины -->
   <div id="cartScreen" class="screen hidden">
-    <!-- Шапка корзины с аккуратной фиксированной кнопкой -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 12px;">
       <h2 style="margin: 0; font-size: 20px; white-space: nowrap;">Корзина</h2>
       <button id="continueShoppingBtn" type="button" style="background: #282936; color: #fff; border: 1px solid #38394a; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; width: auto; flex-shrink: 0; white-space: nowrap;">
@@ -111,7 +110,8 @@
       <div class="cart-total-title">Итого: <span id="cartTotal">0</span> ₸</div>
 
       <label for="nickname" style="display:block; margin-bottom:8px; font-weight:600;">Ваш ник в Roblox</label>
-      <input type="text" id="nickname" placeholder="Например: xX_Player_Xx" style="width:100%; padding:12px; margin-bottom:15px; border-radius:12px; border:1px solid #282936; background:#181922; color:#fff; box-sizing:border-box;">
+      <!-- Добавлен enterkeyhint="done" для синей кнопки "Готово" на клавиатуре -->
+      <input type="text" id="nickname" placeholder="Например: xX_Player_Xx" enterkeyhint="done" style="width:100%; padding:12px; margin-bottom:15px; border-radius:12px; border:1px solid #282936; background:#181922; color:#fff; box-sizing:border-box;">
 
       <div class="payment-block" style="text-align:center; margin-bottom:15px;">
         <p style="margin-bottom:8px; color:#a0a0ab;">Переведите сумму на Kaspi по номеру/QR:</p>
@@ -119,11 +119,12 @@
         <p class="requisites" style="font-weight:bold; margin-top:8px;">+7 7XX XXX XX XX (Kaspi Gold)</p>
       </div>
 
-      <!-- Кнопка вызова политики конфиденциальности и правил -->
-      <div style="text-align: center; margin-bottom: 15px;">
-        <button id="openRulesBtn" type="button" style="background: transparent; border: none; color: #8b5cf6; font-size: 12px; cursor: pointer; text-decoration: underline;">
-          📜 Правила магазина и политика возврата
-        </button>
+      <!-- Чекбокс согласия с правилами -->
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px;">
+        <input type="checkbox" id="rulesCheckbox" style="width: 18px; height: 18px; accent-color: #8b5cf6; cursor: pointer;">
+        <label for="rulesCheckbox" style="font-size: 13px; color: #a0a0ab; cursor: pointer;">
+          Я согласен с <button id="openRulesBtn" type="button" style="background: transparent; border: none; color: #8b5cf6; padding: 0; font-size: 13px; cursor: pointer; text-decoration: underline;">правилами магазина</button>
+        </label>
       </div>
 
       <button id="submitOrderBtn" class="primary-btn" style="width:100%;">К оформлению ›</button>
