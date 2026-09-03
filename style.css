@@ -149,14 +149,16 @@ header h1, .header h1, .topbar h1 {
     padding-left: 4px;
 }
 
-/* Горизонтальный ряд с возможностью прокрутки */
+/* Горизонтальный ряд с возможностью прокрутки в 1 строчку */
 .category-scroll {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
-    gap: 8px;
+    gap: 8px !important;
     overflow-x: auto !important;
-    padding: 4px 2px 10px 2px;
+    padding: 4px 2px 10px 2px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
 }
@@ -165,15 +167,16 @@ header h1, .header h1, .topbar h1 {
     display: none;
 }
 
-/* Плашки категорий и плавная анимация вылета слева направо */
+/* Плашки категорий: перебиваем width: 100% от тегов button */
 .cat-chip {
     flex: 0 0 auto !important;
-    white-space: nowrap;
+    width: auto !important;
+    white-space: nowrap !important;
     background: #181922;
     color: #a0a0ab;
     border: 1px solid #282936;
     border-radius: 20px;
-    padding: 10px 18px;
+    padding: 10px 18px !important;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -202,9 +205,9 @@ header h1, .header h1, .topbar h1 {
 .cat-chip:nth-child(10) { animation-delay: 0.59s; }
 
 .cat-chip.active {
-    background: #8b5cf6;
-    color: #ffffff;
-    border-color: #8b5cf6;
+    background: #8b5cf6 !important;
+    color: #ffffff !important;
+    border-color: #8b5cf6 !important;
 }
 
 @keyframes slideInLeft {
@@ -219,7 +222,7 @@ header h1, .header h1, .topbar h1 {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px !important;
-    padding-bottom: 90px !important; /* Отступ для предотвращения перекрытия товаров панелью */
+    padding-bottom: 90px !important;
 }
 
 .item-card {
@@ -522,7 +525,7 @@ button {
     color: #ffffff;
 }
 
-/* ФИКСИРОВАННАЯ НИЖНЯЯ ПАНЕЛЬ КОРЗИНЫ (Полностью растянутая) */
+/* ФИКСИРОВАННАЯ НИЖНЯЯ ПАНЕЛЬ КОРЗИНЫ */
 .bottom-cart-bar {
     position: fixed !important;
     bottom: 0 !important;
