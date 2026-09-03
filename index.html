@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MM2 EZZ SHOP</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MM2 EZZ SHOP</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
@@ -71,6 +71,7 @@
     </div>
   </div>
 
+  <!-- Каталог товаров -->
   <main id="catalog" class="catalog"></main>
 
   <!-- Плавающая кнопка корзины снизу -->
@@ -78,6 +79,19 @@
     <button id="openCartBtn" class="floating-cart-btn">
       КОРЗИНА (<span id="cartBadge">0</span>)
     </button>
+  </div>
+
+  <!-- Выплывающее окно (Bottom Sheet / Modal Overlay) -->
+  <div id="modalOverlay" class="overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <span class="title">MM2 EZZ SHOP</span>
+        <button id="closeBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-content">
+        <!-- Сюда при необходимости загружается динамический контент -->
+      </div>
+    </div>
   </div>
 
   <!-- Экран корзины -->
