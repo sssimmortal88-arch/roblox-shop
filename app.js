@@ -1,3 +1,6 @@
+// Telegram ID администратора
+const ADMIN_TELEGRAM_ID = 5538562889; 
+
 const tg = window.Telegram?.WebApp || {};
 if (tg.ready) tg.ready();
 if (tg.expand) tg.expand();
@@ -40,6 +43,32 @@ async function loadProducts() {
 document.addEventListener("DOMContentLoaded", () => {
   loadProducts();
 
+  // --- Проверка прав Администратора ---
+  const currentUserId = tg.initDataUnsafe?.user?.id;
+  const adminBtn = document.getElementById("adminBtn");
+
+  // Показываем кнопку «Админка» только владельцу
+  if (adminBtn) {
+    if (currentUserId === ADMIN_TELEGRAM_ID || !tg.initData) {
+      adminBtn.classList.remove("hidden");
+    }
+    adminBtn.addEventListener("click", openAdminPanel);
+  }
+
+  // Настройка закрытия админ-панели
+  const adminOverlay = document.getElementById("adminOverlay");
+  const closeAdminBtn = document.getElementById("closeAdminBtn");
+  if (adminOverlay && closeAdminBtn) {
+    closeAdminBtn.addEventListener("click", closeAdminPanel);
+    adminOverlay.addEventListener("click", (e) => {
+      if (e.target === adminOverlay) closeAdminPanel();
+    });
+  }
+
+  // Кнопка сохранения нового товара в админке
+  document.getElementById("saveNewItemBtn")?.addEventListener("click", addNewProduct);
+
+  // --- Остальные обработчики магазина ---
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
     searchInput.addEventListener("input", applyFilters);
@@ -80,9 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const cartScreen = document.getElementById("cartScreen");
       if (cartScreen) cartScreen.classList.remove("hidden");
       
-      // Принудительно скрываем нижнюю плашку "КОРЗИНА (X)"
       document.getElementById("bottomCartBar")?.classList.add("hidden"); 
-      
       renderCart();
     };
   }
@@ -107,12 +134,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Кнопка оформления заказа
   document.getElementById("submitOrderBtn")?.addEventListener("click", submitOrder);
 
-  // Автоскролл и скрытие клавиатуры при выборе чекбокса/вводе ника
+  // Скрытие клавиатуры при согласии с правилами
   const rulesCheckbox = document.getElementById("rulesCheckbox");
   const submitOrderBtn = document.getElementById("submitOrderBtn");
   if (rulesCheckbox && submitOrderBtn) {
     rulesCheckbox.addEventListener("change", () => {
-      document.activeElement?.blur(); // Сворачиваем клавиатуру
+      document.activeElement?.blur();
       setTimeout(() => {
         submitOrderBtn.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 100);
@@ -125,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
     checkSingleOrderStatus(window.currentOrderId, document.getElementById("deliveryLink"));
   });
 
-  // Логика шторки / модального окна
+  // Логика шторки правил
   const overlay = document.getElementById('modalOverlay');
   const closeBtn = document.getElementById('closeBtn');
   if (overlay && closeBtn) {
@@ -135,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Открытие правил магазина и политики возврата
+  // Открытие правил
   const openRulesBtn = document.getElementById("openRulesBtn");
   const modalContent = document.querySelector("#modalOverlay .modal-content");
 
@@ -154,6 +181,114 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// ---------- Логика Админ-панели ----------
+function openAdminPanel() {
+  const adminOverlay = document.getElementById("adminOverlay");
+  if (adminOverlay) {
+    adminOverlay.classList.add("active");
+    renderAdminProducts();
+  }
+}
+
+function closeAdminPanel() {
+  const adminOverlay = document.getElementById("adminOverlay");
+  if (adminOverlay) {
+    adminOverlay.classList.remove("active");
+  }
+}
+
+function renderAdminProducts() {
+  const container = document.getElementById("adminProductsList");
+  if (!container) return;
+
+  if (products.length === 0) {
+    container.innerHTML = "<p style='color:#a0a0ab; text-align:center;'>Товары пока отсутствуют</p>";
+    return;
+  }
+
+  container.innerHTML = products.map(p => `
+    <div style="background: #181922; border: 1px solid #282936; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <strong style="color: #fff; font-size: 15px;">${p.name}</strong>
+        <button onclick="deleteProduct(${p.id})" style="background: #ef4444; color: white; border: none; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer;">Удалить</button>
+      </div>
+      
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <div style="flex: 1;">
+          <label style="font-size: 11px; color: #a0a0ab; display: block; margin-bottom: 2px;">Цена (₸):</label>
+          <input type="number" value="${p.price}" onchange="updateProductPrice(${p.id}, this.value)" style="width: 100%; background: #0f1015; border: 1px solid #282936; color: #ffd700; font-weight: bold; padding: 6px; border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <div style="flex: 1;">
+          <label style="font-size: 11px; color: #a0a0ab; display: block; margin-bottom: 2px;">В наличии (шт):</label>
+          <input type="number" value="${p.stock ?? 1}" onchange="updateProductStock(${p.id}, this.value)" style="width: 100%; background: #0f1015; border: 1px solid #282936; color: #fff; font-weight: bold; padding: 6px; border-radius: 6px; box-sizing: border-box;">
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.updateProductPrice = function(id, newPrice) {
+  const p = products.find(item => item.id == id);
+  if (p) {
+    p.price = Number(newPrice);
+    applyFilters();
+    showToast("✏️ Цена обновлена");
+  }
+};
+
+window.updateProductStock = function(id, newStock) {
+  const p = products.find(item => item.id == id);
+  if (p) {
+    p.stock = Number(newStock);
+    applyFilters();
+    showToast("📦 Остаток обновлен");
+  }
+};
+
+window.deleteProduct = function(id) {
+  products = products.filter(item => item.id != id);
+  renderAdminProducts();
+  applyFilters();
+  showToast("🗑️ Товар удален");
+};
+
+function addNewProduct() {
+  const titleInput = document.getElementById("addTitle");
+  const priceInput = document.getElementById("addPrice");
+  const stockInput = document.getElementById("addStock");
+  const categorySelect = document.getElementById("addCategory");
+
+  const title = titleInput ? titleInput.value.trim() : "";
+  const price = priceInput ? Number(priceInput.value) : 0;
+  const stock = stockInput ? Number(stockInput.value) : 1;
+  const category = categorySelect ? categorySelect.value : "godly";
+
+  if (!title || isNaN(price) || price <= 0) {
+    alert("Заполните название и корректную цену товара!");
+    return;
+  }
+
+  const newProd = {
+    id: Date.now(),
+    name: title,
+    price: price,
+    stock: stock,
+    category: category,
+    image_url: "kaspi-qr.png"
+  };
+
+  products.unshift(newProd);
+
+  if (titleInput) titleInput.value = "";
+  if (priceInput) priceInput.value = "";
+  if (stockInput) stockInput.value = "";
+
+  renderAdminProducts();
+  applyFilters();
+  showToast("✅ Товар добавлен!");
+}
 
 // ---------- Фильтрация и сортировка ----------
 function applyFilters() {
@@ -187,18 +322,24 @@ function renderCatalog(list) {
 
   catalog.innerHTML = list.map(p => {
     const qty = cart[p.id] || 0;
+    const isOutOfStock = p.stock !== undefined && p.stock <= 0;
     
-    const buttonHtml = qty > 0 
-      ? `<div class="qty-control-pill">
+    let buttonHtml = "";
+    if (isOutOfStock) {
+      buttonHtml = `<button class="buy-btn" style="background:#282936; color:#a0a0ab; cursor:not-allowed;" disabled>Нет в наличии</button>`;
+    } else if (qty > 0) {
+      buttonHtml = `<div class="qty-control-pill">
            <button class="pill-btn" onclick="changeQty(${p.id}, -1)">—</button>
            <span class="pill-count">${qty}</span>
            <button class="pill-btn" onclick="changeQty(${p.id}, 1)">+</button>
-         </div>`
-      : `<button class="buy-btn" onclick="addToCart(${p.id}, event)">В корзину</button>`;
+         </div>`;
+    } else {
+      buttonHtml = `<button class="buy-btn" onclick="addToCart(${p.id}, event)">В корзину</button>`;
+    }
 
     return `
       <div class="item-card">
-        <img src="${p.image_url}" alt="${p.name}">
+        <img src="${p.image_url || 'kaspi-qr.png'}" alt="${p.name}">
         <div class="name">${p.name}</div>
         <div class="price">${p.price} ₸</div>
         <div id="btn-container-${p.id}">${buttonHtml}</div>
@@ -299,7 +440,6 @@ function updateCartBadge() {
   const catalog = document.getElementById("catalog");
   const isCatalogVisible = catalog && !catalog.classList.contains("hidden");
 
-  // Показываем плашку "КОРЗИНА (X)" только если открыт каталог
   if (bottomBar) {
     if (count > 0 && isCatalogVisible) {
       bottomBar.classList.remove("hidden");
@@ -337,7 +477,7 @@ function renderCart() {
 
     return `
       <div class="cart-card">
-        <img class="cart-item-img" src="${p.image_url}" alt="${p.name}">
+        <img class="cart-item-img" src="${p.image_url || 'kaspi-qr.png'}" alt="${p.name}">
         <div class="cart-card-content">
           <div class="cart-card-top">
             <span class="cart-card-title">${p.name}</span>
