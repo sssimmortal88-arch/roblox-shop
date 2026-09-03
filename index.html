@@ -96,8 +96,16 @@
 
   <!-- Экран корзины -->
   <div id="cartScreen" class="screen hidden">
-    <h2>Корзина</h2>
+    <!-- Шапка корзины с заглавием и кнопкой возврата -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h2 style="margin: 0;">Корзина</h2>
+      <button id="continueShoppingBtn" type="button" class="secondary-btn" style="background: #282936; color: #fff; border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600;">
+        🛍️ В магазин
+      </button>
+    </div>
+
     <div id="cartItems"></div>
+
     <div class="cart-summary-block">
       <div id="cartCountLabel" class="cart-count-text">В корзине 0 товаров</div>
       <div class="cart-total-title">Итого: <span id="cartTotal">0</span> ₸</div>
@@ -112,7 +120,7 @@
       </div>
 
       <button id="submitOrderBtn" class="primary-btn" style="width:100%;">К оформлению ›</button>
-      <button id="backToCatalogBtn" class="secondary-btn" style="width:100%; background:transparent; margin-top:8px; border:none; color:#a0a0ab;">← Назад в каталог</button>
+      <button id="backToCatalogBtn" class="secondary-btn" style="width:100%; background:transparent; margin-top:10px; border:none; color:#a0a0ab; font-size:14px; cursor:pointer;">← Вернуться в каталог</button>
     </div>
   </div>
 
