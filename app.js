@@ -1,6 +1,6 @@
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
+const tg = window.Telegram?.WebApp || {};
+if (tg.ready) tg.ready();
+if (tg.expand) tg.expand();
 
 const API_BASE = "https://roblox-shop-4e0j.onrender.com/api";
 
@@ -38,6 +38,8 @@ async function loadProducts() {
 
 // ---------- Слушатели событий ----------
 document.addEventListener("DOMContentLoaded", () => {
+  loadProducts();
+
   const searchInput = document.getElementById("searchInput");
   if (searchInput) {
     searchInput.addEventListener("input", applyFilters);
@@ -67,6 +69,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
       selectedCategory = chip.dataset.category || "all";
       applyFilters();
+    });
+  }
+
+  // Безопасная привязка кнопки корзины
+  const openCartBtn = document.getElementById("openCartBtn");
+  if (openCartBtn) {
+    openCartBtn.onclick = () => {
+      hideAllScreens();
+      const cartScreen = document.getElementById("cartScreen");
+      if (cartScreen) cartScreen.classList.remove("hidden");
+      renderCart();
+    };
+  }
+
+  // Безопасная привязка кнопки истории
+  const openHistoryBtn = document.getElementById("openHistoryBtn");
+  if (openHistoryBtn) {
+    openHistoryBtn.onclick = () => {
+      hideAllScreens();
+      const historyScreen = document.getElementById("historyScreen");
+      if (historyScreen) historyScreen.classList.remove("hidden");
+      renderHistory();
+    };
+  }
+
+  // Кнопки возврата в каталог
+  document.getElementById("backToCatalogBtn")?.addEventListener("click", showCatalog);
+  document.getElementById("backFromHistoryBtn")?.addEventListener("click", showCatalog);
+  document.getElementById("statusToCatalogBtn")?.addEventListener("click", showCatalog);
+
+  // Кнопка оформления заказа
+  document.getElementById("submitOrderBtn")?.addEventListener("click", submitOrder);
+
+  // Проверка статуса заказа
+  document.getElementById("checkStatusBtn")?.addEventListener("click", () => {
+    if (!window.currentOrderId) return;
+    checkSingleOrderStatus(window.currentOrderId, document.getElementById("deliveryLink"));
+  });
+
+  // Логика шторки / модального окна (если присутствует в DOM)
+  const overlay = document.getElementById('modalOverlay');
+  const closeBtn = document.getElementById('closeBtn');
+  if (overlay && closeBtn) {
+    closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.remove('active');
     });
   }
 });
@@ -112,7 +160,7 @@ function renderCatalog(list) {
            <span class="pill-count">${qty}</span>
            <button class="pill-btn" onclick="changeQty(${p.id}, 1)">+</button>
          </div>`
-      : `<button class="buy-btn" onclick="addToCart(${p.id})">В корзину</button>`;
+      : `<button class="buy-btn" onclick="addToCart(${p.id}, event)">В корзину</button>`;
 
     return `
       <div class="item-card">
@@ -126,13 +174,13 @@ function renderCatalog(list) {
 }
 
 // ---------- Работа с корзиной ----------
-function addToCart(id) {
+function addToCart(id, event) {
   cart[id] = 1;
   updateCartBadge();
   
-  if (window.event && window.event.target) {
-    const btn = window.event.target;
-    const card = btn.closest('.item-card');
+  const targetBtn = event ? (event.currentTarget || event.target) : null;
+  if (targetBtn) {
+    const card = targetBtn.closest('.item-card');
     const img = card ? card.querySelector('img') : null;
     const cartBadge = document.getElementById('openCartBtn');
 
@@ -168,7 +216,7 @@ function addToCart(id) {
 
   applyFilters();
 
-  if (window.tg && tg.HapticFeedback) {
+  if (tg?.HapticFeedback) {
     tg.HapticFeedback.impactOccurred("light");
   }
   showToast("🛒 Товар добавлен в корзину!");
@@ -190,7 +238,7 @@ function changeQty(id, delta) {
     renderCart();
   }
 
-  if (window.tg && tg.HapticFeedback) {
+  if (tg?.HapticFeedback) {
     tg.HapticFeedback.impactOccurred("light");
   }
 }
@@ -200,7 +248,7 @@ function removeItemCompletely(id) {
   updateCartBadge();
   applyFilters();
   renderCart();
-  if (window.tg && tg.HapticFeedback) {
+  if (tg?.HapticFeedback) {
     tg.HapticFeedback.impactOccurred("medium");
   }
 }
@@ -229,6 +277,8 @@ function updateCartBadge() {
 // ---------- Отрисовка корзины ----------
 function renderCart() {
   const container = document.getElementById("cartItems");
+  if (!container) return;
+
   let total = 0;
   let totalCount = 0;
 
@@ -236,7 +286,8 @@ function renderCart() {
 
   if (cartEntries.length === 0) {
     container.innerHTML = "<p class='empty-cart-text' style='text-align:center; color:#a0a0ab; padding:30px 0;'>Корзина пуста 🛒</p>";
-    document.getElementById("cartTotal").textContent = "0";
+    const totalEl = document.getElementById("cartTotal");
+    if (totalEl) totalEl.textContent = "0";
     const countLabel = document.getElementById("cartCountLabel");
     if (countLabel) countLabel.textContent = "В корзине 0 товаров";
     return;
@@ -268,7 +319,8 @@ function renderCart() {
     `;
   }).join("");
 
-  document.getElementById("cartTotal").textContent = total;
+  const totalEl = document.getElementById("cartTotal");
+  if (totalEl) totalEl.textContent = total;
   
   const countLabel = document.getElementById("cartCountLabel");
   if (countLabel) {
@@ -278,57 +330,40 @@ function renderCart() {
 
 // ---------- Переключение экранов ----------
 function hideAllScreens() {
-  document.getElementById("catalog").classList.add("hidden");
-  document.querySelector(".filters").classList.add("hidden");
-  const catSec = document.querySelector(".category-section");
-  if (catSec) catSec.classList.add("hidden");
+  document.getElementById("catalog")?.classList.add("hidden");
+  document.querySelector(".filters")?.classList.add("hidden");
+  document.querySelector(".category-section")?.classList.add("hidden");
   
-  document.getElementById("cartScreen").classList.add("hidden");
-  document.getElementById("statusScreen").classList.add("hidden");
-  document.getElementById("historyScreen").classList.add("hidden");
+  document.getElementById("cartScreen")?.classList.add("hidden");
+  document.getElementById("statusScreen")?.classList.add("hidden");
+  document.getElementById("historyScreen")?.classList.add("hidden");
 
-  const bottomBar = document.getElementById("bottomCartBar");
-  if (bottomBar) bottomBar.classList.add("hidden");
-  
-  const dropdown = document.getElementById("filterDropdown");
-  if (dropdown) dropdown.classList.remove("open");
+  document.getElementById("bottomCartBar")?.classList.add("hidden");
+  document.getElementById("filterDropdown")?.classList.remove("open");
 }
 
 function showCatalog() {
   hideAllScreens();
-  document.getElementById("catalog").classList.remove("hidden");
-  document.querySelector(".filters").classList.remove("hidden");
-  const catSec = document.querySelector(".category-section");
-  if (catSec) catSec.classList.remove("hidden");
+  document.getElementById("catalog")?.classList.remove("hidden");
+  document.querySelector(".filters")?.classList.remove("hidden");
+  document.querySelector(".category-section")?.classList.remove("hidden");
 
   updateCartBadge();
 }
 
-document.getElementById("openCartBtn").onclick = () => {
-  hideAllScreens();
-  document.getElementById("cartScreen").classList.remove("hidden");
-  renderCart();
-};
-
-document.getElementById("openHistoryBtn").onclick = () => {
-  hideAllScreens();
-  document.getElementById("historyScreen").classList.remove("hidden");
-  renderHistory();
-};
-
-document.getElementById("backToCatalogBtn").onclick = showCatalog;
-document.getElementById("backFromHistoryBtn").onclick = showCatalog;
-document.getElementById("statusToCatalogBtn").onclick = showCatalog;
-
 // ---------- Оформление заказа ----------
-document.getElementById("submitOrderBtn").onclick = async () => {
-  const nickname = document.getElementById("nickname").value.trim();
+async function submitOrder() {
+  const nicknameInput = document.getElementById("nickname");
+  const nickname = nicknameInput ? nicknameInput.value.trim() : "";
+  
   if (!nickname) {
-    tg.showAlert("Укажите ник в Roblox");
+    if (tg.showAlert) tg.showAlert("Укажите ник в Roblox");
+    else alert("Укажите ник в Roblox");
     return;
   }
   if (Object.keys(cart).length === 0) {
-    tg.showAlert("Корзина пуста");
+    if (tg.showAlert) tg.showAlert("Корзина пуста");
+    else alert("Корзина пуста");
     return;
   }
 
@@ -355,25 +390,25 @@ document.getElementById("submitOrderBtn").onclick = async () => {
       saveOrderToHistory(data.order_id);
 
       hideAllScreens();
-      document.getElementById("statusScreen").classList.remove("hidden");
-      document.getElementById("orderIdText").textContent = `Заказ #${data.order_id}`;
-      document.getElementById("deliveryLink").innerHTML = "";
+      document.getElementById("statusScreen")?.classList.remove("hidden");
+      const orderIdText = document.getElementById("orderIdText");
+      if (orderIdText) orderIdText.textContent = `Заказ #${data.order_id}`;
+      const deliveryLink = document.getElementById("deliveryLink");
+      if (deliveryLink) deliveryLink.innerHTML = "";
       window.currentOrderId = data.order_id;
     } else {
-      tg.showAlert("Ошибка при создании заказа, попробуйте ещё раз");
+      if (tg.showAlert) tg.showAlert("Ошибка при создании заказа, попробуйте ещё раз");
+      else alert("Ошибка при создании заказа");
     }
   } catch (err) {
-    tg.showAlert("Ошибка соединения с сервером");
+    if (tg.showAlert) tg.showAlert("Ошибка соединения с сервером");
+    else alert("Ошибка соединения с сервером");
   }
-};
+}
 
 // ---------- Проверка статуса заказа ----------
-document.getElementById("checkStatusBtn").onclick = async () => {
-  if (!window.currentOrderId) return;
-  checkSingleOrderStatus(window.currentOrderId, document.getElementById("deliveryLink"));
-};
-
 async function checkSingleOrderStatus(orderId, targetContainer) {
+  if (!targetContainer) return;
   try {
     const res = await fetch(`${API_BASE}/order/${orderId}`);
     const data = await res.json();
@@ -395,6 +430,8 @@ async function checkSingleOrderStatus(orderId, targetContainer) {
 // ---------- Отрисовка Истории Заказов ----------
 function renderHistory() {
   const container = document.getElementById("historyList");
+  if (!container) return;
+
   const orders = getSavedOrders();
 
   if (orders.length === 0) {
@@ -420,8 +457,6 @@ window.checkHistoryItemStatus = function(orderId) {
     checkSingleOrderStatus(orderId, target);
   }
 };
-
-loadProducts();
 
 // Всплывающее уведомление
 function showToast(message) {
