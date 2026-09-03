@@ -11,6 +11,8 @@
   <header class="topbar">
     <h1>MM2 EZZ SHOP</h1>
     <div style="display: flex; gap: 8px; align-items: center;">
+      <!-- Кнопка Админки (по умолчанию скрыта классами, видна только вам) -->
+      <button type="button" class="cart-badge hidden" id="adminBtn" style="background: #8b5cf6; border-color: #7c3aed;">⚙️ Админка</button>
       <button type="button" class="cart-badge" id="openHistoryBtn">📜 Заказы</button>
     </div>
   </header>
@@ -21,7 +23,7 @@
       <span class="search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder="Я ищу...">
     </div>
-    
+
     <button type="button" class="filter-btn-icon" id="toggleFilterBtn">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="4" y1="21" x2="4" y2="14"></line>
@@ -81,15 +83,54 @@
     </button>
   </div>
 
-  <!-- Выплывающее окно (Bottom Sheet / Modal Overlay) -->
+  <!-- Выплывающее окно правил -->
   <div id="modalOverlay" class="overlay">
     <div class="modal-container">
       <div class="modal-header">
-        <span class="title">MM2 EZZ SHOP</span>
+        <span class="title">Правила магазина</span>
         <button id="closeBtn" class="close-btn">&times;</button>
       </div>
       <div class="modal-content">
         <!-- Текст правил -->
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО АДМИН-ПАНЕЛИ -->
+  <div id="adminOverlay" class="overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <span class="title">⚙️ Управление товарами</span>
+        <button id="closeAdminBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-content">
+        
+        <!-- Форма добавления нового товара -->
+        <div style="background: #181922; border: 1px solid #282936; border-radius: 14px; padding: 12px; margin-bottom: 15px;">
+          <b style="color: #8b5cf6; display: block; margin-bottom: 10px; font-size: 15px;">+ Добавить новый товар</b>
+          <input type="text" id="addTitle" placeholder="Название предмета" style="width: 100%; height: 38px; margin-bottom: 8px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
+          
+          <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+            <input type="number" id="addPrice" placeholder="Цена (₸)" style="width: 50%; height: 38px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
+            <input type="number" id="addStock" placeholder="Кол-во (шт)" style="width: 50%; height: 38px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
+          </div>
+          
+          <select id="addCategory" style="width: 100%; height: 38px; margin-bottom: 8px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
+            <option value="godly">Годли</option>
+            <option value="krupnye">Крупные</option>
+            <option value="chroma">Хромы</option>
+            <option value="sets">Сеты</option>
+            <option value="pets">Петы</option>
+            <option value="vintage">Винтажки</option>
+          </select>
+          
+          <button id="saveNewItemBtn" type="button" style="background: #8b5cf6; height: 40px; border-radius: 10px; width: 100%; font-weight: bold;">Сохранить предмет</button>
+        </div>
+
+        <!-- Список существующих товаров для изменения -->
+        <div style="font-size: 14px; color: #a0a0ab; margin-bottom: 10px; font-weight: bold;">Список товаров на витрине:</div>
+        <div id="adminProductsList"></div>
+
       </div>
     </div>
   </div>
@@ -110,7 +151,6 @@
       <div class="cart-total-title">Итого: <span id="cartTotal">0</span> ₸</div>
 
       <label for="nickname" style="display:block; margin-bottom:8px; font-weight:600;">Ваш ник в Roblox</label>
-      <!-- Добавлен enterkeyhint="done" для синей кнопки "Готово" на клавиатуре -->
       <input type="text" id="nickname" placeholder="Например: xX_Player_Xx" enterkeyhint="done" style="width:100%; padding:12px; margin-bottom:15px; border-radius:12px; border:1px solid #282936; background:#181922; color:#fff; box-sizing:border-box;">
 
       <div class="payment-block" style="text-align:center; margin-bottom:15px;">
