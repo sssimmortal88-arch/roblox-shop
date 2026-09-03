@@ -412,7 +412,16 @@ button {
     display: none !important;
 }
 
-/* ЭКРАН КОРЗИНЫ */
+/* ==========================================
+   ЭКРАН КОРЗИНЫ И ОФОРМЛЕНИЯ
+   ========================================== */
+#cartScreen {
+    box-sizing: border-box;
+    padding-bottom: 160px !important; /* Большой запас снизу для клавиатуры */
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
 .cart-card {
     background: #181922;
     border: 1px solid #282936;
@@ -503,6 +512,7 @@ button {
     margin-top: 20px;
     border-top: 1px solid #282936;
     padding-top: 15px;
+    margin-bottom: 30px;
 }
 
 .cart-count-text {
@@ -524,6 +534,34 @@ button {
     padding: 14px !important;
     font-size: 16px !important;
     font-weight: 700 !important;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+/* Отображение QR-кода оплаты */
+.payment-block img, .qr-img {
+    display: block;
+    margin: 10px auto;
+    max-width: 150px;
+    width: 100%;
+    height: auto;
+    min-height: 150px;
+    border-radius: 12px;
+    background-color: #282936;
+    object-fit: contain;
+}
+
+/* Ссылка на правила магазина */
+#openRulesBtn {
+    background: transparent !important;
+    border: none !important;
+    color: #a78bfa !important;
+    font-size: 13px !important;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px 8px;
+    box-shadow: none !important;
+    width: auto !important;
+    display: inline-block;
 }
 
 /* ВЫПАДАЮЩАЯ ШТОРКА ФИЛЬТРОВ */
@@ -620,6 +658,12 @@ button {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
+}
+
+/* Автоматически скрываем плашку "КОРЗИНА (X)", если открыт экран корзины */
+#cartScreen:not(.hidden) ~ .bottom-cart-bar,
+#cartScreen:not(.hidden) ~ #bottomCartBar {
+    display: none !important;
 }
 
 .bottom-cart-bar button,
