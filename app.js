@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Безопасная привязка кнопки корзины
+  // Безопасная привязка кнопки открытия корзины
   const openCartBtn = document.getElementById("openCartBtn");
   if (openCartBtn) {
     openCartBtn.onclick = () => {
@@ -94,7 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // Кнопки возврата в каталог
+  // Кнопки возврата в каталог (включая новую "В магазин")
+  document.getElementById("continueShoppingBtn")?.addEventListener("click", showCatalog);
   document.getElementById("backToCatalogBtn")?.addEventListener("click", showCatalog);
   document.getElementById("backFromHistoryBtn")?.addEventListener("click", showCatalog);
   document.getElementById("statusToCatalogBtn")?.addEventListener("click", showCatalog);
@@ -108,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     checkSingleOrderStatus(window.currentOrderId, document.getElementById("deliveryLink"));
   });
 
-  // Логика шторки / модального окна (если присутствует в DOM)
+  // Логика шторки / модального окна
   const overlay = document.getElementById('modalOverlay');
   const closeBtn = document.getElementById('closeBtn');
   if (overlay && closeBtn) {
@@ -124,14 +125,12 @@ function applyFilters() {
   const searchVal = document.getElementById("searchInput")?.value.toLowerCase() || "";
   const sortVal = document.querySelector('input[name="sortOption"]:checked')?.value || "default";
 
-  // 1. Поиск и Категории
   let filtered = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchVal);
     const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // 2. Сортировка
   if (sortVal === "cheap") {
     filtered.sort((a, b) => a.price - b.price);
   } else if (sortVal === "expensive") {
