@@ -103,23 +103,42 @@ app.post("/api/order", (req, res) => {
   }
 
   const products = db.prepare("SELECT * FROM products").all();
+  
+  // 1. Проверяем остатки перед созданием заказа
+  for (const item of items) {
+    const p = products.find(p => p.id === item.product_id);
+    if (!p || p.stock < item.qty) {
+      return res.status(400).json({ error: `Товара "${p ? p.name : 'Товар'}" нет в таком количестве!` });
+    }
+  }
+
   const enrichedItems = items.map(i => {
     const p = products.find(p => p.id === i.product_id);
-    return { name: p ? p.name : "Товар", price: p ? p.price : 0, qty: i.qty };
+    return { name: p.name, price: p.price, qty: i.qty };
   });
   const total = enrichedItems.reduce((sum, i) => sum + i.price * i.qty, 0);
 
+  // 2. Создаем заказ
   const info = db.prepare(`
     INSERT INTO orders (telegram_id, telegram_username, roblox_nickname, items_json, total_price)
     VALUES (?, ?, ?, ?, ?)
   `).run(telegram_id, telegram_username, roblox_nickname, JSON.stringify(enrichedItems), total);
+
+  // 3. Списываем купленный товар и скрываем, если остаток 0
+  for (const item of items) {
+    db.prepare(`
+      UPDATE products 
+      SET stock = stock - ?, 
+          in_stock = CASE WHEN (stock - ?) > 0 THEN 1 ELSE 0 END 
+      WHERE id = ?
+    `).run(item.qty, item.qty, item.product_id);
+  }
 
   const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(info.lastInsertRowid);
   notifyAdminNewOrder(order, enrichedItems);
 
   res.json({ order_id: order.id });
 });
-
 // Статус заказа
 app.get("/api/order/:id", (req, res) => {
   const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(req.params.id);
