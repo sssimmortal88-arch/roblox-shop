@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Безопасная привязка кнопки открытия корзины
+  // Привязка кнопки корзины
   const openCartBtn = document.getElementById("openCartBtn");
   if (openCartBtn) {
     openCartBtn.onclick = () => {
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // Безопасная привязка кнопки истории
+  // Привязка кнопки истории
   const openHistoryBtn = document.getElementById("openHistoryBtn");
   if (openHistoryBtn) {
     openHistoryBtn.onclick = () => {
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // Кнопки возврата в каталог (включая новую "В магазин")
+  // Кнопки возврата в каталог
   document.getElementById("continueShoppingBtn")?.addEventListener("click", showCatalog);
   document.getElementById("backToCatalogBtn")?.addEventListener("click", showCatalog);
   document.getElementById("backFromHistoryBtn")?.addEventListener("click", showCatalog);
@@ -116,6 +116,25 @@ document.addEventListener("DOMContentLoaded", () => {
     closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) overlay.classList.remove('active');
+    });
+  }
+
+  // Открытие правил магазина и политики возврата
+  const openRulesBtn = document.getElementById("openRulesBtn");
+  const modalContent = document.querySelector("#modalOverlay .modal-content");
+
+  if (openRulesBtn && overlay && modalContent) {
+    openRulesBtn.addEventListener("click", () => {
+      modalContent.innerHTML = `
+        <h3 style="margin-top:0; color:#fff; font-size:16px;">Правила магазина и политика возврата</h3>
+        <div style="color:#a0a0ab; font-size:13px; line-height:1.5;">
+          <p><strong>1. Отмена и возврат:</strong> Ввиду специфики цифровых товаров и предметов в Roblox, после подтверждения оплаты и выдачи предмета возврат денежных средств не производится.</p>
+          <p><strong>2. Точность данных:</strong> Покупатель несет полную ответственность за правильность указанного никнейма в Roblox. В случае ошибки при вводе ника возврат или повторная выдача не гарантируются.</p>
+          <p><strong>3. Выдача товара:</strong> Все предметы передаются через приватный сервер или бота в игре в кратчайшие сроки после проверки оплаты.</p>
+          <p><strong>4. Конфиденциальность:</strong> Ваши данные (Telegram ID и никнейм) используются только для проведения и доставки заказа.</p>
+        </div>
+      `;
+      overlay.classList.add("active");
     });
   }
 });
