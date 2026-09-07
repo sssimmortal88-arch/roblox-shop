@@ -47,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentUserId = tg.initDataUnsafe?.user?.id;
   const adminBtn = document.getElementById("adminBtn");
 
-  // Показываем кнопку «Админка» только владельцу
   if (adminBtn) {
     if (currentUserId === ADMIN_TELEGRAM_ID || !tg.initData) {
       adminBtn.classList.remove("hidden");
@@ -247,47 +246,64 @@ window.updateProductStock = function(id, newStock) {
   }
 };
 
-window.deleteProduct = function(id) {
+window.deleteProduct = async function(id) {
+  try {
+    await fetch(`${API_BASE}/admin/products/${id}`, { method: "DELETE" });
+  } catch (e) {}
   products = products.filter(item => item.id != id);
   renderAdminProducts();
   applyFilters();
   showToast("🗑️ Товар удален");
 };
 
-function addNewProduct() {
+// --- Полное создание товара с фото и отправкой на сервер ---
+async function addNewProduct() {
   const titleInput = document.getElementById("addTitle");
   const priceInput = document.getElementById("addPrice");
   const stockInput = document.getElementById("addStock");
   const categorySelect = document.getElementById("addCategory");
+  const imageInput = document.getElementById("addImage");
 
   const title = titleInput ? titleInput.value.trim() : "";
   const price = priceInput ? Number(priceInput.value) : 0;
   const stock = stockInput ? Number(stockInput.value) : 1;
   const category = categorySelect ? categorySelect.value : "godly";
+  const imageUrl = (imageInput && imageInput.value.trim()) ? imageInput.value.trim() : "kaspi-qr.png";
 
   if (!title || isNaN(price) || price <= 0) {
     alert("Заполните название и корректную цену товара!");
     return;
   }
 
-  const newProd = {
-    id: Date.now(),
-    name: title,
-    price: price,
-    stock: stock,
-    category: category,
-    image_url: "kaspi-qr.png"
-  };
+  try {
+    const res = await fetch(`${API_BASE}/admin/products`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        telegram_id: tg.initDataUnsafe?.user?.id || ADMIN_TELEGRAM_ID,
+        name: title,
+        price: price,
+        stock: stock,
+        category: category,
+        image_url: imageUrl
+      })
+    });
 
-  products.unshift(newProd);
+    if (res.ok) {
+      if (titleInput) titleInput.value = "";
+      if (priceInput) priceInput.value = "";
+      if (stockInput) stockInput.value = "1";
+      if (imageInput) imageInput.value = "";
 
-  if (titleInput) titleInput.value = "";
-  if (priceInput) priceInput.value = "";
-  if (stockInput) stockInput.value = "";
-
-  renderAdminProducts();
-  applyFilters();
-  showToast("✅ Товар добавлен!");
+      await loadProducts();
+      renderAdminProducts();
+      showToast("✅ Товар добавлен!");
+    } else {
+      alert("Ошибка при сохранении на сервере");
+    }
+  } catch (err) {
+    alert("Ошибка соединения с сервером");
+  }
 }
 
 // ---------- Фильтрация и сортировка ----------
@@ -350,6 +366,9 @@ function renderCatalog(list) {
 
 // ---------- Работа с корзиной ----------
 function addToCart(id, event) {
+  const p = products.find(item => item.id == id);
+  if (p && p.stock <= 0) return;
+
   cart[id] = 1;
   updateCartBadge();
   
@@ -399,6 +418,15 @@ function addToCart(id, event) {
 
 function changeQty(id, delta) {
   if (!cart[id]) return;
+  
+  const p = products.find(item => item.id == id);
+  
+  // Проверка лимита количества
+  if (delta > 0 && p && cart[id] >= p.stock) {
+    showToast(`⚠️ Доступно только ${p.stock} шт.`);
+    return;
+  }
+
   cart[id] += delta;
   
   if (cart[id] <= 0) {
