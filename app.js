@@ -228,35 +228,97 @@ function renderAdminProducts() {
   `).join('');
 }
 
-window.updateProductPrice = function(id, newPrice) {
+// Обновление цены с отправкой на сервер
+window.updateProductPrice = async function(id, newPrice) {
   const p = products.find(item => item.id == id);
-  if (p) {
-    p.price = Number(newPrice);
-    applyFilters();
-    showToast("✏️ Цена обновлена");
-  }
-};
+  if (!p) return;
 
-window.updateProductStock = function(id, newStock) {
-  const p = products.find(item => item.id == id);
-  if (p) {
-    p.stock = Number(newStock);
-    applyFilters();
-    showToast("📦 Остаток обновлен");
-  }
-};
+  const oldPrice = p.price;
+  p.price = Number(newPrice);
 
-window.deleteProduct = async function(id) {
   try {
-    await fetch(`${API_BASE}/admin/products/${id}`, { method: "DELETE" });
-  } catch (e) {}
-  products = products.filter(item => item.id != id);
-  renderAdminProducts();
-  applyFilters();
-  showToast("🗑️ Товар удален");
+    const res = await fetch(`${API_BASE}/admin/products/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        telegram_id: tg.initDataUnsafe?.user?.id || ADMIN_TELEGRAM_ID,
+        price: p.price,
+        stock: p.stock
+      })
+    });
+
+    if (res.ok) {
+      applyFilters();
+      showToast("✏️ Цена обновлена");
+    } else {
+      p.price = oldPrice;
+      alert("Ошибка при сохранении цены на сервере");
+    }
+  } catch (err) {
+    p.price = oldPrice;
+    alert("Ошибка соединения с сервером");
+  }
 };
 
-// --- Полное создание товара с фото и отправкой на сервер ---
+// Обновление остатка с отправкой на сервер
+window.updateProductStock = async function(id, newStock) {
+  const p = products.find(item => item.id == id);
+  if (!p) return;
+
+  const oldStock = p.stock;
+  p.stock = Number(newStock);
+
+  try {
+    const res = await fetch(`${API_BASE}/admin/products/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        telegram_id: tg.initDataUnsafe?.user?.id || ADMIN_TELEGRAM_ID,
+        price: p.price,
+        stock: p.stock
+      })
+    });
+
+    if (res.ok) {
+      applyFilters();
+      showToast("📦 Остаток обновлен");
+    } else {
+      p.stock = oldStock;
+      alert("Ошибка при сохранении остатка");
+    }
+  } catch (err) {
+    p.stock = oldStock;
+    alert("Ошибка соединения с сервером");
+  }
+};
+
+// Удаление товара с отправкой на сервер
+window.deleteProduct = async function(id) {
+  if (!confirm("Удалить этот товар?")) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/admin/products/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        telegram_id: tg.initDataUnsafe?.user?.id || ADMIN_TELEGRAM_ID
+      })
+    });
+
+    if (res.ok) {
+      products = products.filter(item => item.id != id);
+      renderAdminProducts();
+      applyFilters();
+      showToast("🗑️ Товар удален");
+    } else {
+      alert("Ошибка при удалении товара");
+    }
+  } catch (e) {
+    alert("Ошибка соединения с сервером");
+  }
+};
+
+// --- Создание товара ---
 async function addNewProduct() {
   const titleInput = document.getElementById("addTitle");
   const priceInput = document.getElementById("addPrice");
@@ -421,7 +483,6 @@ function changeQty(id, delta) {
   
   const p = products.find(item => item.id == id);
   
-  // Проверка лимита количества
   if (delta > 0 && p && cart[id] >= p.stock) {
     showToast(`⚠️ Доступно только ${p.stock} шт.`);
     return;
