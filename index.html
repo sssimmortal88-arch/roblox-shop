@@ -11,7 +11,7 @@
   <header class="topbar">
     <h1>MM2 EZZ SHOP</h1>
     <div style="display: flex; gap: 8px; align-items: center;">
-      <!-- Кнопка Админки (по умолчанию скрыта классами, видна только вам) -->
+      <!-- Кнопка Админки (видна только администратору) -->
       <button type="button" class="cart-badge hidden" id="adminBtn" style="background: #8b5cf6; border-color: #7c3aed;">⚙️ Админка</button>
       <button type="button" class="cart-badge" id="openHistoryBtn">📜 Заказы</button>
     </div>
@@ -105,14 +105,15 @@
       </div>
       <div class="modal-content">
         
-        <!-- Форма добавления нового товара -->
+        <!-- Форма добавления одного нового товара -->
         <div style="background: #181922; border: 1px solid #282936; border-radius: 14px; padding: 12px; margin-bottom: 15px;">
           <b style="color: #8b5cf6; display: block; margin-bottom: 10px; font-size: 15px;">+ Добавить новый товар</b>
-          <input type="text" id="addTitle" placeholder="Название предмета" style="width: 100%; height: 38px; margin-bottom: 8px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
+          
+          <input type="text" id="addTitle" placeholder="Название предмета (напр. Icebreaker)" style="width: 100%; height: 38px; margin-bottom: 8px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
           
           <div style="display: flex; gap: 8px; margin-bottom: 8px;">
             <input type="number" id="addPrice" placeholder="Цена (₸)" style="width: 50%; height: 38px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
-            <input type="number" id="addStock" placeholder="Кол-во (шт)" style="width: 50%; height: 38px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
+            <input type="number" id="addStock" placeholder="Кол-во (шт)" value="1" style="width: 50%; height: 38px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
           </div>
           
           <select id="addCategory" style="width: 100%; height: 38px; margin-bottom: 8px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
@@ -123,11 +124,13 @@
             <option value="pets">Петы</option>
             <option value="vintage">Винтажки</option>
           </select>
+
+          <input type="text" id="addImage" placeholder="Ссылка на фото (напр. https://site.com/img.png)" style="width: 100%; height: 38px; margin-bottom: 8px; background: #0f1015; border: 1px solid #282936; color: #fff; border-radius: 8px; padding: 0 10px; box-sizing: border-box;">
           
-          <button id="saveNewItemBtn" type="button" style="background: #8b5cf6; height: 40px; border-radius: 10px; width: 100%; font-weight: bold;">Сохранить предмет</button>
+          <button id="saveNewItemBtn" type="button" style="background: #8b5cf6; height: 40px; border-radius: 10px; width: 100%; font-weight: bold; color: #fff; border: none; cursor: pointer;">Сохранить предмет</button>
         </div>
 
-        <!-- Список существующих товаров для изменения -->
+        <!-- Список существующих товаров для изменения/удаления -->
         <div style="font-size: 14px; color: #a0a0ab; margin-bottom: 10px; font-weight: bold;">Список товаров на витрине:</div>
         <div id="adminProductsList"></div>
 
