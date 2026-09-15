@@ -270,4 +270,18 @@ insert.run("Battle Axe", 220, 1, "godly", "baxe.webp"); //
 insert.run("Battle Axe 2", 450, 1, "godly", "baxe2.webp"); //
 insert.run("Frostbite", 260, 1, "godly", "frostbite.webp"); //
 insert.run("Red Luger", 220, 1, "godly", "redluger.webp"); //
-insert.run("Peppermint", 220, 1, "godly", "peppermint.webp"); //
+insert.run("Peppermint", 320, 1, "godly", "peppermint.webp"); //
+insert.run("Slasher", 360, 1, "godly", "slasher.webp"); //
+insert.run("Saw", 250, 1, "godly", "saw.webp"); //
+insert.run("Green Luger", 600, 1, "godly", "greenluger.webp"); //
+insert.run("Icewing", 450, 1, "godly", "icewing.webp"); //
+insert.run("Ghostblade", 180, 1, "godly", "ghostblade.webp"); //
+insert.run("Xmas", 280, 1, "godly", "xmas.webp"); //
+insert.run("Handsaw", 200, 1, "godly", "handsaw.webp"); //
+insert.run("Frostsaber", 200, 1, "godly", "frostsaber.webp"); //
+insert.run("Snowflake", 200, 1, "godly", "snowflake.webp"); //
+insert.run("Tides", 250, 1, "godly", "tides.webp"); //
+insert.run("Fang", 250, 1, "godly", "fang.webp"); //
+insert.run("Flames", 200, 1, "godly", "flames.webp"); //
+insert.run("Nebula", 300, 1, "godly", "nebula.webp"); //
+insert.run("Heat", 260, 1, "godly", "heat.webp"); //
