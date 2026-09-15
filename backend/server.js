@@ -260,6 +260,7 @@ app.post("/api/mark-delivered/:id", (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 insert.run("Prismatic", 220, 1, "godly", "prismatic.webp"); //
-insert.run("Pumpking", 220, 1, "godly", "Pumpking.webp"); //
-insert.run("Ice Dragon", 220, 1, "godly", "icedragon.webp"); //
-insert.run("Ice Shard", 220, 1, "godly", "iceshard.webp"); //
+insert.run("Pumpking", 250, 1, "godly", "Pumpking.webp"); //
+insert.run("Ice Dragon", 210, 1, "godly", "icedragon.webp"); //
+insert.run("Ice Shard", 230, 1, "godly", "iceshard.webp"); //
+insert.run("Spider", 260, 1, "godly", "spider.webp"); //
