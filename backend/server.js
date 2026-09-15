@@ -11,7 +11,14 @@ app.use(cors());
 app.use(express.json());
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const ADMIN_TELEGRAM_ID = 5538562889;
+
+// Массив со всеми ID администраторов (добавлен твой второй ID)
+const ADMIN_TELEGRAM_IDS = [5538562889, 1325498689];
+
+// Проверка прав администратора
+function isAdmin(telegramId) {
+  return ADMIN_TELEGRAM_IDS.includes(Number(telegramId));
+}
 
 // --- Валидация initData от Telegram Mini App ---
 function validateInitData(initData) {
@@ -46,7 +53,7 @@ app.get("/api/products", (req, res) => {
 app.post("/api/admin/products", (req, res) => {
   const { telegram_id, name, price, stock, category, image_url } = req.body;
 
-  if (Number(telegram_id) !== ADMIN_TELEGRAM_ID) {
+  if (!isAdmin(telegram_id)) {
     return res.status(403).json({ error: "Отказано в доступе" });
   }
 
@@ -58,11 +65,11 @@ app.post("/api/admin/products", (req, res) => {
   res.json({ id: info.lastInsertRowid, name, price, stock });
 });
 
-// 2. Изменение цены или количества товара в БД
-app.patch("/api/admin/products/:id", (req, res) => {
+// 2. Изменение цены или количества товара в БД (поддержка PUT и PATCH)
+const updateProductHandler = (req, res) => {
   const { telegram_id, price, stock } = req.body;
 
-  if (Number(telegram_id) !== ADMIN_TELEGRAM_ID) {
+  if (!isAdmin(telegram_id)) {
     return res.status(403).json({ error: "Отказано в доступе" });
   }
 
@@ -78,13 +85,16 @@ app.patch("/api/admin/products/:id", (req, res) => {
   `).run(newPrice, newStock, inStock, req.params.id);
 
   res.json({ success: true });
-});
+};
+
+app.put("/api/admin/products/:id", updateProductHandler);
+app.patch("/api/admin/products/:id", updateProductHandler);
 
 // 3. Удаление товара из БД
 app.delete("/api/admin/products/:id", (req, res) => {
   const { telegram_id } = req.body;
 
-  if (Number(telegram_id) !== ADMIN_TELEGRAM_ID) {
+  if (!isAdmin(telegram_id)) {
     return res.status(403).json({ error: "Отказано в доступе" });
   }
 
@@ -139,6 +149,7 @@ app.post("/api/order", (req, res) => {
 
   res.json({ order_id: order.id });
 });
+
 // Статус заказа
 app.get("/api/order/:id", (req, res) => {
   const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(req.params.id);
