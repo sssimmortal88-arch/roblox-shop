@@ -12,12 +12,42 @@ app.use(express.json());
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 
-// Массив со всеми ID администраторов (добавлен твой второй ID)
+// Массив со всеми ID администраторов
 const ADMIN_TELEGRAM_IDS = [5538562889, 1325498689];
 
 // Проверка прав администратора
 function isAdmin(telegramId) {
   return ADMIN_TELEGRAM_IDS.includes(Number(telegramId));
+}
+
+// --- АВТОМАТИЧЕСКАЯ МИГРАЦИЯ СТРУКТУРЫ БД ---
+try {
+  // Создаем таблицу products, если ее еще нет
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS products (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      price REAL NOT NULL
+    );
+  `);
+
+  // Проверяем существующие колонки и добавляем недостающие
+  const columns = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
+  
+  if (!columns.includes("stock")) {
+    db.exec("ALTER TABLE products ADD COLUMN stock INTEGER DEFAULT 1");
+  }
+  if (!columns.includes("in_stock")) {
+    db.exec("ALTER TABLE products ADD COLUMN in_stock INTEGER DEFAULT 1");
+  }
+  if (!columns.includes("category")) {
+    db.exec("ALTER TABLE products ADD COLUMN category TEXT DEFAULT 'godly'");
+  }
+  if (!columns.includes("image_url")) {
+    db.exec("ALTER TABLE products ADD COLUMN image_url TEXT DEFAULT 'kaspi-qr.png'");
+  }
+} catch (e) {
+  console.error("Ошибка при инициализации базы данных:", e);
 }
 
 // --- Валидация initData от Telegram Mini App ---
@@ -43,48 +73,72 @@ function validateInitData(initData) {
 
 // --- Каталог товаров ---
 app.get("/api/products", (req, res) => {
-  const products = db.prepare("SELECT * FROM products").all();
-  res.json(products);
+  try {
+    const products = db.prepare("SELECT * FROM products").all();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ==================== АДМИН-ПАНЕЛЬ (РАБОТА С БАЗОЙ) ====================
 
 // 1. Добавление товара в БД
 app.post("/api/admin/products", (req, res) => {
-  const { telegram_id, name, price, stock, category, image_url } = req.body;
+  try {
+    const { telegram_id, name, price, stock, category, image_url } = req.body;
 
-  if (!isAdmin(telegram_id)) {
-    return res.status(403).json({ error: "Отказано в доступе" });
+    if (!isAdmin(telegram_id)) {
+      return res.status(403).json({ error: "Отказано в доступе" });
+    }
+
+    if (!name || price === undefined) {
+      return res.status(400).json({ error: "Название и цена обязательны" });
+    }
+
+    const info = db.prepare(`
+      INSERT INTO products (name, price, stock, in_stock, category, image_url)
+      VALUES (?, ?, ?, 1, ?, ?)
+    `).run(
+      name, 
+      Number(price), 
+      Number(stock) || 1, 
+      category || 'godly', 
+      image_url || 'kaspi-qr.png'
+    );
+
+    res.json({ id: info.lastInsertRowid, name, price, stock });
+  } catch (err) {
+    console.error("Ошибка добавления товара:", err);
+    res.status(500).json({ error: err.message });
   }
-
-  const info = db.prepare(`
-    INSERT INTO products (name, price, stock, in_stock, category, image_url)
-    VALUES (?, ?, ?, 1, ?, ?)
-  `).run(name, price, stock || 1, category || 'godly', image_url || 'kaspi-qr.png');
-
-  res.json({ id: info.lastInsertRowid, name, price, stock });
 });
 
 // 2. Изменение цены или количества товара в БД (поддержка PUT и PATCH)
 const updateProductHandler = (req, res) => {
-  const { telegram_id, price, stock } = req.body;
+  try {
+    const { telegram_id, price, stock } = req.body;
 
-  if (!isAdmin(telegram_id)) {
-    return res.status(403).json({ error: "Отказано в доступе" });
+    if (!isAdmin(telegram_id)) {
+      return res.status(403).json({ error: "Отказано в доступе" });
+    }
+
+    const product = db.prepare("SELECT * FROM products WHERE id = ?").get(req.params.id);
+    if (!product) return res.status(404).json({ error: "Товар не найден" });
+
+    const newPrice = price !== undefined ? Number(price) : product.price;
+    const newStock = stock !== undefined ? Number(stock) : product.stock;
+    const inStock = newStock > 0 ? 1 : 0;
+
+    db.prepare(`
+      UPDATE products SET price = ?, stock = ?, in_stock = ? WHERE id = ?
+    `).run(newPrice, newStock, inStock, req.params.id);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Ошибка обновления товара:", err);
+    res.status(500).json({ error: err.message });
   }
-
-  const product = db.prepare("SELECT * FROM products WHERE id = ?").get(req.params.id);
-  if (!product) return res.status(404).json({ error: "Товар не найден" });
-
-  const newPrice = price !== undefined ? price : product.price;
-  const newStock = stock !== undefined ? stock : product.stock;
-  const inStock = newStock > 0 ? 1 : 0;
-
-  db.prepare(`
-    UPDATE products SET price = ?, stock = ?, in_stock = ? WHERE id = ?
-  `).run(newPrice, newStock, inStock, req.params.id);
-
-  res.json({ success: true });
 };
 
 app.put("/api/admin/products/:id", updateProductHandler);
@@ -92,85 +146,106 @@ app.patch("/api/admin/products/:id", updateProductHandler);
 
 // 3. Удаление товара из БД
 app.delete("/api/admin/products/:id", (req, res) => {
-  const { telegram_id } = req.body;
+  try {
+    const { telegram_id } = req.body;
 
-  if (!isAdmin(telegram_id)) {
-    return res.status(403).json({ error: "Отказано в доступе" });
+    if (!isAdmin(telegram_id)) {
+      return res.status(403).json({ error: "Отказано в доступе" });
+    }
+
+    db.prepare("DELETE FROM products WHERE id = ?").run(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  db.prepare("DELETE FROM products WHERE id = ?").run(req.params.id);
-  res.json({ success: true });
 });
 
 // ==================== ЗАКАЗЫ И ВЫДАЧА ====================
 
 // Создание заказа
 app.post("/api/order", (req, res) => {
-  const { telegram_id, telegram_username, roblox_nickname, items } = req.body;
+  try {
+    const { telegram_id, telegram_username, roblox_nickname, items } = req.body;
 
-  if (!roblox_nickname || !items || items.length === 0) {
-    return res.status(400).json({ error: "invalid payload" });
-  }
-
-  const products = db.prepare("SELECT * FROM products").all();
-  
-  // 1. Проверяем остатки перед созданием заказа
-  for (const item of items) {
-    const p = products.find(p => p.id === item.product_id);
-    if (!p || p.stock < item.qty) {
-      return res.status(400).json({ error: `Товара "${p ? p.name : 'Товар'}" нет в таком количестве!` });
+    if (!roblox_nickname || !items || items.length === 0) {
+      return res.status(400).json({ error: "invalid payload" });
     }
+
+    const products = db.prepare("SELECT * FROM products").all();
+
+    // 1. Проверяем остатки перед созданием заказа
+    for (const item of items) {
+      const p = products.find(p => p.id === item.product_id);
+      if (!p || p.stock < item.qty) {
+        return res.status(400).json({ error: `Товара "${p ? p.name : 'Товар'}" нет в таком количестве!` });
+      }
+    }
+
+    const enrichedItems = items.map(i => {
+      const p = products.find(p => p.id === i.product_id);
+      return { name: p.name, price: p.price, qty: i.qty };
+    });
+    const total = enrichedItems.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+    // 2. Создаем заказ
+    const info = db.prepare(`
+      INSERT INTO orders (telegram_id, telegram_username, roblox_nickname, items_json, total_price)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(telegram_id, telegram_username, roblox_nickname, JSON.stringify(enrichedItems), total);
+
+    // 3. Списываем купленный товар и скрываем, если остаток 0
+    for (const item of items) {
+      db.prepare(`
+        UPDATE products 
+        SET stock = stock - ?, 
+            in_stock = CASE WHEN (stock - ?) > 0 THEN 1 ELSE 0 END 
+        WHERE id = ?
+      `).run(item.qty, item.qty, item.product_id);
+    }
+
+    const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(info.lastInsertRowid);
+    if (notifyAdminNewOrder) notifyAdminNewOrder(order, enrichedItems);
+
+    res.json({ order_id: order.id });
+  } catch (err) {
+    console.error("Ошибка создания заказа:", err);
+    res.status(500).json({ error: err.message });
   }
-
-  const enrichedItems = items.map(i => {
-    const p = products.find(p => p.id === i.product_id);
-    return { name: p.name, price: p.price, qty: i.qty };
-  });
-  const total = enrichedItems.reduce((sum, i) => sum + i.price * i.qty, 0);
-
-  // 2. Создаем заказ
-  const info = db.prepare(`
-    INSERT INTO orders (telegram_id, telegram_username, roblox_nickname, items_json, total_price)
-    VALUES (?, ?, ?, ?, ?)
-  `).run(telegram_id, telegram_username, roblox_nickname, JSON.stringify(enrichedItems), total);
-
-  // 3. Списываем купленный товар и скрываем, если остаток 0
-  for (const item of items) {
-    db.prepare(`
-      UPDATE products 
-      SET stock = stock - ?, 
-          in_stock = CASE WHEN (stock - ?) > 0 THEN 1 ELSE 0 END 
-      WHERE id = ?
-    `).run(item.qty, item.qty, item.product_id);
-  }
-
-  const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(info.lastInsertRowid);
-  notifyAdminNewOrder(order, enrichedItems);
-
-  res.json({ order_id: order.id });
 });
 
 // Статус заказа
 app.get("/api/order/:id", (req, res) => {
-  const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(req.params.id);
-  if (!order) return res.status(404).json({ error: "not found" });
-  res.json({ status: order.status, delivery_link: order.delivery_link });
+  try {
+    const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(req.params.id);
+    if (!order) return res.status(404).json({ error: "not found" });
+    res.json({ status: order.status, delivery_link: order.delivery_link });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Заказы для Roblox-бота
 app.get("/api/pending-deliveries", (req, res) => {
-  const orders = db.prepare("SELECT * FROM orders WHERE status = 'approved'").all();
-  res.json(orders.map(o => ({
-    order_id: o.id,
-    roblox_nickname: o.roblox_nickname,
-    items: JSON.parse(o.items_json)
-  })));
+  try {
+    const orders = db.prepare("SELECT * FROM orders WHERE status = 'approved'").all();
+    res.json(orders.map(o => ({
+      order_id: o.id,
+      roblox_nickname: o.roblox_nickname,
+      items: JSON.parse(o.items_json)
+    })));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Подтверждение выдачи от Roblox-бота
 app.post("/api/mark-delivered/:id", (req, res) => {
-  db.prepare("UPDATE orders SET status = 'delivered' WHERE id = ?").run(req.params.id);
-  res.json({ ok: true });
+  try {
+    db.prepare("UPDATE orders SET status = 'delivered' WHERE id = ?").run(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
