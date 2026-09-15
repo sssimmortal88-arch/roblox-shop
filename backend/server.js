@@ -20,9 +20,9 @@ function isAdmin(telegramId) {
   return ADMIN_TELEGRAM_IDS.includes(Number(telegramId));
 }
 
-// --- АВТОМАТИЧЕСКАЯ МИГРАЦИЯ СТРУКТУРЫ БД ---
+// --- АВТОМАТИЧЕСКАЯ МИГРАЦИЯ И АВТО-ЗАПОЛНЕНИЕ БД ---
 try {
-  // Создаем таблицу products, если ее еще нет
+  // 1. Создаем таблицу products, если ее еще нет
   db.exec(`
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,20 +31,29 @@ try {
     );
   `);
 
-  // Проверяем существующие колонки и добавляем недостающие
+  // 2. Проверяем существующие колонки и добавляем недостающие
   const columns = db.prepare("PRAGMA table_info(products)").all().map(c => c.name);
   
-  if (!columns.includes("stock")) {
-    db.exec("ALTER TABLE products ADD COLUMN stock INTEGER DEFAULT 1");
-  }
-  if (!columns.includes("in_stock")) {
-    db.exec("ALTER TABLE products ADD COLUMN in_stock INTEGER DEFAULT 1");
-  }
-  if (!columns.includes("category")) {
-    db.exec("ALTER TABLE products ADD COLUMN category TEXT DEFAULT 'godly'");
-  }
-  if (!columns.includes("image_url")) {
-    db.exec("ALTER TABLE products ADD COLUMN image_url TEXT DEFAULT 'kaspi-qr.png'");
+  if (!columns.includes("stock")) db.exec("ALTER TABLE products ADD COLUMN stock INTEGER DEFAULT 1");
+  if (!columns.includes("in_stock")) db.exec("ALTER TABLE products ADD COLUMN in_stock INTEGER DEFAULT 1");
+  if (!columns.includes("category")) db.exec("ALTER TABLE products ADD COLUMN category TEXT DEFAULT 'godly'");
+  if (!columns.includes("image_url")) db.exec("ALTER TABLE products ADD COLUMN image_url TEXT DEFAULT 'kaspi-qr.png'");
+
+  // 3. Авто-заполнение базовыми товарами, если база пустая после перезапуска
+  const countObj = db.prepare("SELECT COUNT(*) as count FROM products").get();
+  if (countObj && countObj.count === 0) {
+    const insert = db.prepare(`
+      INSERT INTO products (name, price, stock, in_stock, category, image_url)
+      VALUES (?, ?, ?, 1, ?, ?)
+    `);
+
+    // Начальный ассортимент товаров
+    insert.run("Ghostblade", 160, 10, "godly", "ghostblade.png");
+    insert.run("Prismatic", 220, 5, "godly", "prismatic.webp");
+    insert.run("Ice Dragon", 300, 3, "godly", "icedragon.webp");
+    insert.run("Pumpking", 450, 2, "godly", "Pumpking.webp");
+
+    console.log("Стартовые товары автоматически добавлены в базу данных!");
   }
 } catch (e) {
   console.error("Ошибка при инициализации базы данных:", e);
