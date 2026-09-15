@@ -268,3 +268,6 @@ insert.run("Vampire's Edge", 260, 1, "godly", "vampedge.webp"); //
 insert.run("Pixel", 270, 1, "godly", "pixel.webp"); //
 insert.run("Battle Axe", 220, 1, "godly", "baxe.webp"); //
 insert.run("Battle Axe 2", 450, 1, "godly", "baxe2.webp"); //
+insert.run("Frostbite", 260, 1, "godly", "frostbite.webp"); //
+insert.run("Red Luger", 220, 1, "godly", "redluger.webp"); //
+insert.run("Peppermint", 220, 1, "godly", "peppermint.webp"); //
