@@ -96,7 +96,10 @@ insert.run("Luger", 1000, 1, "godly", "luger.webp");
 insert.run("Bat", 2250, 1, "godly", "bat.webp");
 insert.run("Icepiercer", 3500, 1, "godly", "icep.webp");
 insert.run("Harvester", 4200, 1, "godly", "harv.webp");
-
+insert.run("Eternalcane Set", 550, 1, "set", "canset.webp");
+    insert.run("Elderwood Set", 1700, 1, "set", "eldset.webp");
+    insert.run("Logchopper Set", 650, 1, "set", "lgset.webp");
+    
     console.log("Стартовые товары автоматически добавлены в базу данных!");
   }
 } catch (e) {
