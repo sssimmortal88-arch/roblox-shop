@@ -89,6 +89,9 @@ insert.run("Hallow's Edge", 240, 1, "godly", "hallowedge.webp");
     insert.run("Gemstone", 350, 1, "godly", "gemstone.webp");
     insert.run("Eggblade", 200, 1, "godly", "eggblade.webp");
     insert.run("Bioblade", 240, 1, "godly", "bioblade.webp");
+    insert.run("Heartblade", 1400, 1, "godly", "heartblade.webp");
+insert.run("Lighbringer", 1400, 1, "godly", "lightbringer.webp");
+insert.run("Luger", 1400, 1, "godly", "luger.webp");
     
     console.log("Стартовые товары автоматически добавлены в базу данных!");
   }
