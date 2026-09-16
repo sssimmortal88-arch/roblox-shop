@@ -77,7 +77,10 @@ try {
 insert.run("Hallow's Edge", 240, 1, "godly", "hallowedge.webp");
     insert.run("Hallows Blade", 240, 1, "godly", "hallowblade.webp");
     insert.run("Winter's Edge Knife", 200, 1, "godly", "wintersedge.webp");
-    
+    insert.run("Boneblade", 320, 1, "godly", "boneblade.webp");
+    insert.run("Jinglegun Gun", 350, 1, "godly", "jinglegun.webp");
+    insert.run("Cookieblade", 200, 1, "godly", "cookieblade.webp");
+    insert.run("Chill", 240, 1, "godly", "chill.webp");
     console.log("Стартовые товары автоматически добавлены в базу данных!");
   }
 } catch (e) {
