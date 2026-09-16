@@ -90,9 +90,13 @@ insert.run("Hallow's Edge", 240, 1, "godly", "hallowedge.webp");
     insert.run("Eggblade", 200, 1, "godly", "eggblade.webp");
     insert.run("Bioblade", 240, 1, "godly", "bioblade.webp");
     insert.run("Heartblade", 1400, 1, "godly", "heartblade.webp");
-insert.run("Lighbringer", 1400, 1, "godly", "lightbringer.webp");
-insert.run("Luger", 1400, 1, "godly", "luger.webp");
-    
+insert.run("Lighbringer", 850, 1, "godly", "lightbringer.webp");
+insert.run("Luger", 1000, 1, "godly", "luger.webp");
+    insert.run("Batwing", 1250, 1, "godly", "batwing.webp");
+insert.run("Bat", 2250, 1, "godly", "bat.webp");
+insert.run("Icepiercer", 3500, 1, "godly", "icep.webp");
+insert.run("Harvester", 4200, 1, "godly", "harv.webp");
+
     console.log("Стартовые товары автоматически добавлены в базу данных!");
   }
 } catch (e) {
