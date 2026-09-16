@@ -25,16 +25,5 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 `);
 
-// Демо-товары (замени на свои)
-const count = db.prepare("SELECT COUNT(*) as c FROM products").get().c;
-if (count === 0) {
-  const insert = db.prepare(
-    "INSERT INTO products (name, category, price, image_url) VALUES (?, ?, ?, ?)"
-  );
-  insert.run("Godly Chroma Lightbringer", "knife", 4500, "https://example.com/img1.png");
-  insert.run("Godly Vampire", "gun", 3200, "https://example.com/img2.png");
-  insert.run("Chroma Bat", "knife", 6000, "https://example.com/img3.png");
-  insert.run("Huge Cat Pet", "pet", 1500, "https://example.com/img4.png");
-}
 
 export default db;
