@@ -99,7 +99,12 @@ insert.run("Harvester", 4200, 1, "godly", "harv.webp");
 insert.run("Eternalcane Set", 550, 1, "set", "canset.webp");
     insert.run("Elderwood Set", 1700, 1, "set", "eldset.webp");
     insert.run("Logchopper Set", 650, 1, "set", "lgset.webp");
-    
+    insert.run("Iceflake Set", 900, 1, "set", "icef.webp");
+    insert.run("Plasma Set", 850, 1, "set", "plasmaset.webp");
+    insert.run("Hallow Set", 1000, 1, "set", "hallowset.webp");
+    insert.run("Candy Set", 2300, 1, "set", "candyset.webp");
+    insert.run("America Set", 1000, 1, "set", "americaset.webp");
+    insert.run("Ice Set", 2050, 1, "set", "iceset.webp");
     console.log("Стартовые товары автоматически добавлены в базу данных!");
   }
 } catch (e) {
