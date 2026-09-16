@@ -81,6 +81,15 @@ insert.run("Hallow's Edge", 240, 1, "godly", "hallowedge.webp");
     insert.run("Jinglegun Gun", 350, 1, "godly", "jinglegun.webp");
     insert.run("Cookieblade", 200, 1, "godly", "cookieblade.webp");
     insert.run("Chill", 240, 1, "godly", "chill.webp");
+    insert.run("Shark", 450, 1, "godly", "shark.webp");
+    insert.run("Nightblade", 450, 1, "godly", "nightblade.webp");
+    insert.run("Laser", 600, 1, "godly", "laser.webp");
+    insert.run("Deathshard", 330, 1, "godly", "deathshard.webp");
+    insert.run("Clockwork", 240, 1, "godly", "clockwork.webp");
+    insert.run("Gemstone", 350, 1, "godly", "gemstone.webp");
+    insert.run("Eggblade", 200, 1, "godly", "eggblade.webp");
+    insert.run("Bioblade", 240, 1, "godly", "bioblade.webp");
+    
     console.log("Стартовые товары автоматически добавлены в базу данных!");
   }
 } catch (e) {
