@@ -48,10 +48,32 @@ try {
     `);
 
     // НАЧАЛЬНЫЙ АССОРТИМЕНТ ТОВАРОВ:
-    insert.run("Ghostblade", 160, 10, "godly", "ghostblade.png");
-    insert.run("Prismatic", 220, 1, "godly", "prismatic.webp");
-    insert.run("Ice Dragon", 300, 3, "godly", "icedragon.webp");
-    insert.run("Pumpking", 450, 2, "godly", "Pumpking.webp");
+  insert.run("Prismatic", 220, 1, "godly", "prismatic.webp");
+    insert.run("Pumpking", 250, 1, "godly", "Pumpking.webp");
+    insert.run("Ice Dragon", 210, 1, "godly", "icedragon.webp");
+    insert.run("Ice Shard", 230, 1, "godly", "iceshard.webp");
+    insert.run("Spider", 260, 1, "godly", "spider.webp");
+    insert.run("Vampire's Edge", 260, 1, "godly", "vampedge.webp");
+    insert.run("Pixel", 270, 1, "godly", "pixel.webp");
+    insert.run("Battle Axe", 220, 1, "godly", "baxe.webp");
+    insert.run("Battle Axe 2", 450, 1, "godly", "baxe2.webp");
+    insert.run("Frostbite", 260, 1, "godly", "frostbite.webp");
+    insert.run("Red Luger", 220, 1, "godly", "redluger.webp");
+    insert.run("Peppermint", 320, 1, "godly", "peppermint.webp");
+    insert.run("Slasher", 360, 1, "godly", "slasher.webp");
+    insert.run("Saw", 250, 1, "godly", "saw.webp");
+    insert.run("Green Luger", 600, 1, "godly", "greenluger.webp");
+    insert.run("Icewing", 450, 1, "godly", "icewing.webp");
+    insert.run("Ghostblade", 180, 1, "godly", "ghostblade.webp");
+    insert.run("Xmas", 280, 1, "godly", "xmas.webp");
+    insert.run("Handsaw", 200, 1, "godly", "handsaw.webp");
+    insert.run("Frostsaber", 200, 1, "godly", "frostsaber.webp");
+    insert.run("Snowflake", 200, 1, "godly", "snowflake.webp");
+    insert.run("Tides", 250, 1, "godly", "tides.webp");
+    insert.run("Fang", 250, 1, "godly", "fang.webp");
+    insert.run("Flames", 200, 1, "godly", "flames.webp");
+    insert.run("Nebula", 300, 1, "godly", "nebula.webp");
+    insert.run("Heat", 260, 1, "godly", "heat.webp");
 
     console.log("Стартовые товары автоматически добавлены в базу данных!");
   }
